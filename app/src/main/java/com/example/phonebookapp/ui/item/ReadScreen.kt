@@ -3,6 +3,8 @@
 package com.example.phonebookapp.ui.item
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -20,11 +26,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,23 +52,57 @@ fun ReadScreen() {
     Scaffold(
         topBar = {
             ReadTopBar()
-        }
-    ) {innerPadding ->
-        Column(
-            modifier = Modifier.padding(innerPadding)
+        },
+        containerColor = MaterialTheme.colorScheme.primaryContainer
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .padding(innerPadding)
         ) {
-            ReadBody()
+            item { ReadBody() }
         }
     }
 }
 
 @Composable
-fun ReadTopBar(){
-    TopAppBar(title = {
-        Text(text = "Back")
-    })
-
+fun ReadTopBar() {
+    TopAppBar(
+        navigationIcon = {
+            ReadButton(image = Icons.Default.ArrowBack) {
+            }
+        },
+        title = {
+            Row(
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                ReadButton(
+                    image = Icons.Default.Edit,
+                    onClick = {}
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    )
 }
+
+@Composable
+fun ReadButton(
+    image: ImageVector,
+    onClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        elevation = FloatingActionButtonDefaults.elevation(0.dp)
+    ) {
+        Image(
+            imageVector = image,
+            contentDescription = null
+        )
+    }
+}
+
 
 @Composable
 fun ReadBody() {
@@ -67,7 +110,7 @@ fun ReadBody() {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start=16.dp, end=16.dp, top=8.dp, bottom=8.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
     ) {
         ReadPhoto()
         ReadName(
@@ -95,20 +138,24 @@ fun ReadCategory(text: String, icon: ImageVector, color: Color) {
             imageVector = icon,
             contentDescription = "Category",
             modifier = Modifier.size(24.dp),
-            colorFilter= ColorFilter.tint(color)
+            colorFilter = ColorFilter.tint(color)
         )
         Spacer(modifier = Modifier.padding(4.dp))
-        Text(text = text,color = color)
+        Text(text = text, color = color)
     }
 }
 
 @Composable
 fun ReadList() {
-    LazyColumn(content = {
-        items(3) {
+    Column {
+        Text(text = "List")
+        repeat(3) {
+            Text(text = "Item $it")
+            Text(text = "Item $it")
+            Text(text = "Item $it")
             Text(text = "Item $it")
         }
-    })
+    }
 }
 
 @Composable
@@ -137,13 +184,13 @@ fun ReadButtons() {
             .padding(64.dp, 8.dp, 64.dp, 8.dp),
     ) {
 
-        ReadButton(
+        ReadButtonAndName(
             icon = Icons.Default.Phone,
             name = "Call",
             onClick = { /*TODO*/ }
         )
         Spacer(modifier = Modifier.weight(1f))
-        ReadButton(
+        ReadButtonAndName(
             icon = Icons.Default.MailOutline,
             name = "SMS",
             onClick = { /*TODO*/ }
@@ -154,7 +201,7 @@ fun ReadButtons() {
 
 
 @Composable
-fun ReadButton(
+fun ReadButtonAndName(
     icon: ImageVector,
     name: String,
     onClick: () -> Unit
@@ -193,6 +240,6 @@ fun ReadName(
 @Composable
 fun ReadScreenPreview() {
     PhoneBookAppTheme {
-        ReadScreen()
+        ReadTopBar()
     }
 }
