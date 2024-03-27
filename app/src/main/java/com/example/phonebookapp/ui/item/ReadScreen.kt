@@ -240,6 +240,6 @@ fun ReadName(
 @Composable
 fun ReadScreenPreview() {
     PhoneBookAppTheme {
-        ReadTopBar()
+        ReadScreen()
     }
 }
