@@ -106,7 +106,7 @@ fun GreetingPreview() {
     PhoneBookAppTheme {
         PeopleList(
             listOf(
-                Item(1, "Xyz", 999888333),
+                Item(1, "Xyz", "999888333","asf","asdfa","asdfa"),
             )
         )
     }

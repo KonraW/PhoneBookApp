@@ -8,5 +8,8 @@ data class Item(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
-    val number: Int
+    val number: String,
+    val email: String,
+    val address: String,
+    val notes: String
 )
