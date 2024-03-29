@@ -11,7 +11,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PhoneBookAppTheme {
                 // A surface container using the 'background' color from the theme
-                NotebookAppScreen()
+                PhoneBookAppScreen()
             }
         }
     }

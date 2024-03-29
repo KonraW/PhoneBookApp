@@ -98,33 +98,49 @@ fun EntryBody(
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(surname = newValue)) },
             label = "Surname"
         )
-        EntryIconAndText(
-            image = Icons.Default.Phone,
-            value = itemDetails.number,
-            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(number = newValue)) },
-            label = "Phone"
-        )
-        EntryDrop(
-//            value=itemDetails.numberTypes,
+        EntryIconAndTextAndDrop(
             itemDetails = itemDetails,
-            onValueChange = onItemValueChange //= {newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue))}
+            onItemValueChange = onItemValueChange
         )
+
 
     }
 }
 
 @Composable
+fun EntryIconAndTextAndDrop(
+    itemDetails: ItemDetails,
+    onItemValueChange: (ItemDetails) -> Unit
+){
+    EntryIconAndText(
+        image = Icons.Default.Phone,
+        value = itemDetails.number,
+        onValueChange = { newValue -> onItemValueChange(itemDetails.copy(number = newValue)) },
+        label = "Phone"
+    )
+    EntryDrop(
+//            value=itemDetails.numberTypes,
+        types = NumberTypes.values().map { it.name },
+        value= itemDetails.numberTypes,
+        itemDetails = itemDetails,
+        onValueChange =  { newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue)) }//onItemValueChange //= {newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue))}
+    )
+}
+
+@Composable
 fun EntryDrop(
 //    value: NumberTypes,
+    types: List<String>,
+    value: String,
     itemDetails: ItemDetails,
-    onValueChange: (ItemDetails) -> Unit
+    onValueChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var value by remember { mutableStateOf(NumberTypes.OTHER) }
+//    var value by remember { mutableStateOf(NumberTypes.OTHER) }
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         OutlinedTextField(
-            value = itemDetails.numberTypes.toString(),//selectedValue.toString(),
+            value = value,//selectedValue.toString(),
             label = { Text("Select") },
             readOnly = true,
             onValueChange = {},
@@ -141,11 +157,11 @@ fun EntryDrop(
 //            DropdownMenuItem(
 //                text = { Text(text = "Mobile") },
 //                onClick = { onValueChange(itemDetails.copy(numberTypes = NumberTypes.MOBILE)); expanded = false })
-            for (type in NumberTypes.values()) {
+            for (type in types) {
                 DropdownMenuItem(
-                    text = { Text(text = type.name) },
+                    text = { Text(text = type) },
                     onClick = {
-                        onValueChange(itemDetails.copy(numberTypes = type))
+                        onValueChange(type) //onValueChange(itemDetails.copy(numberTypes = type))
                         expanded = false
                     }
                 )

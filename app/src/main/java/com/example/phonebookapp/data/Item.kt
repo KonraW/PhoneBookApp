@@ -10,7 +10,7 @@ data class Item(
     val name: String,
     val surname: String,
     val number: String,
-    val numberType: NumberTypes,
+    val numberType: String,//NumberTypes,
     val email: String,
     val address: String,
     val notes: String

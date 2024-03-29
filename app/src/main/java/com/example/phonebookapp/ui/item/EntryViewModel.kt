@@ -53,7 +53,7 @@ data class ItemDetails(
     val name: String = "",
     val surname: String = "",
     val number: String = "",
-    val numberTypes: NumberTypes= NumberTypes.HOME,
+    val numberTypes: String="HOME",//NumberTypes= NumberTypes.HOME,
     val email: String = "",
     val address: String = "",
     val notes: String = ""
