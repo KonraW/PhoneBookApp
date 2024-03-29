@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.item.EntryViewModel
 import kotlinx.coroutines.launch
@@ -87,36 +88,46 @@ fun EntryBody(
         modifier = modifier.padding(8.dp)
     ) {
         EntryIconAndText(
-            itemDetails = itemDetails,
             image = Icons.Default.Person,
             value = itemDetails.name,
-            onValueChange = onItemValueChange,
-            "Name"
+            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(name = newValue)) },
+            label = "Name"
         )
-        EntryText(value = "", onValueChange = {}, label = "Surname")
+        EntryText(
+            value = itemDetails.surname,
+            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(surname = newValue)) },
+            label = "Surname"
+        )
         EntryIconAndText(
-            itemDetails = itemDetails,
             image = Icons.Default.Phone,
-            value = "",
-            onValueChange = {},
+            value = itemDetails.number,
+            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(number = newValue)) },
             label = "Phone"
         )
-        EntryDrop()
+        EntryDrop(
+//            value=itemDetails.numberTypes,
+            itemDetails = itemDetails,
+            onValueChange = onItemValueChange //= {newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue))}
+        )
 
     }
 }
 
 @Composable
-fun EntryDrop() {
+fun EntryDrop(
+//    value: NumberTypes,
+    itemDetails: ItemDetails,
+    onValueChange: (ItemDetails) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
-    var value by remember { mutableStateOf("Home") }
+    var value by remember { mutableStateOf(NumberTypes.OTHER) }
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         OutlinedTextField(
-            value = value,
+            value = itemDetails.numberTypes.toString(),//selectedValue.toString(),
             label = { Text("Select") },
             readOnly = true,
-            onValueChange = { value = it },
+            onValueChange = {},
             modifier = Modifier
 //                .clickable(onClick = { expanded = !expanded })
                 .menuAnchor()
@@ -124,13 +135,21 @@ fun EntryDrop() {
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
 
-            DropdownMenuItem(
-                text = { Text(text = "kto") },
-                onClick = { value = "kto"; expanded = false })
-            DropdownMenuItem(
-                text = { Text(text = "fasf") },
-                onClick = { value = "fasf"; expanded = false })
-
+//            DropdownMenuItem(
+//                text = { Text(text = "Home") },
+//                onClick = { onValueChange(itemDetails.copy(numberTypes = NumberTypes.HOME)); expanded = false })
+//            DropdownMenuItem(
+//                text = { Text(text = "Mobile") },
+//                onClick = { onValueChange(itemDetails.copy(numberTypes = NumberTypes.MOBILE)); expanded = false })
+            for (type in NumberTypes.values()) {
+                DropdownMenuItem(
+                    text = { Text(text = type.name) },
+                    onClick = {
+                        onValueChange(itemDetails.copy(numberTypes = type))
+                        expanded = false
+                    }
+                )
+            }
         }
     }
 }
@@ -145,10 +164,9 @@ fun EntryTexts() {
 
 @Composable
 fun EntryIconAndText(
-    itemDetails: ItemDetails,
     image: ImageVector,
     value: String,
-    onValueChange: (ItemDetails) -> Unit,
+    onValueChange: (String) -> Unit,
     label: String
 ) {
     Row(
@@ -165,7 +183,10 @@ fun EntryIconAndText(
         )
         OutlinedTextField(
             value = value,
-            onValueChange = {onValueChange(itemDetails.copy(name = it))},
+            onValueChange = { newValue ->
+                onValueChange(newValue)
+            },
+            //{onValueChange(itemDetails.copy(number=it))},
             label = { Text(label) }
         )
         Spacer(modifier = Modifier.padding(20.dp))
@@ -180,7 +201,7 @@ fun EntryText(
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { onValueChange(it) },
         label = { Text(label) },
         modifier = Modifier.padding(8.dp)
     )

@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Item::class], version = 1, exportSchema = false)
+@Database(entities = [Item::class], version = 3, exportSchema = false)
 abstract class PeopleDatabase: RoomDatabase() {
     abstract fun itemDao(): ItemDao
 
@@ -20,6 +20,7 @@ abstract class PeopleDatabase: RoomDatabase() {
                     PeopleDatabase::class.java,
                     "item_database"
                 )
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { Instance = it }
             }

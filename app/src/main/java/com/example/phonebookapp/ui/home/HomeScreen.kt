@@ -104,10 +104,10 @@ private fun PersonRow(item: Item) {
 @Composable
 fun GreetingPreview() {
     PhoneBookAppTheme {
-        PeopleList(
-            listOf(
-                Item(1, "Xyz", "999888333","asf","asdfa","asdfa"),
-            )
-        )
+//        PeopleList(
+//            listOf(
+//                Item(1, "Xyz", "cos","999888333","asf","asdfa","asdfa"),
+//            )
+//        )
     }
 }

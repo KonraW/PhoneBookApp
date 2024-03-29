@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.phonebookapp.data.Item
 import com.example.phonebookapp.data.ItemsRepository
+import com.example.phonebookapp.data.NumberTypes
 
 data class ItemUiState(
     val itemDetails: ItemDetails = ItemDetails(),
@@ -23,6 +24,11 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
             isEntryValid = validateInput(itemDetails)
         )
     }
+    suspend fun saveItem() {
+       // if (validateInput()) {
+            itemsRepository.insertItem(itemUiState.itemDetails.toItem())
+       // }
+    }
 
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
         return with(uiState) {
@@ -31,11 +37,6 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
         }
     }
 
-    suspend fun saveItem() {
-        if (validateInput()) {
-            itemsRepository.insertItem(itemUiState.itemDetails.toItem())
-        }
-    }
 
     private fun isValidPhone(phone: String): Boolean {
         return phone.trim().length in 9..13 && Patterns.PHONE.matcher(phone).matches()
@@ -50,7 +51,9 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
 data class ItemDetails(
     val id: Int = 0,
     val name: String = "",
+    val surname: String = "",
     val number: String = "",
+    val numberTypes: NumberTypes= NumberTypes.HOME,
     val email: String = "",
     val address: String = "",
     val notes: String = ""
@@ -58,7 +61,9 @@ data class ItemDetails(
     fun toItem(): Item = Item(
         id = id,
         name = name,
+        surname = surname,
         number = number,
+        numberType = numberTypes,
         email = email,
         address = address,
         notes = notes
