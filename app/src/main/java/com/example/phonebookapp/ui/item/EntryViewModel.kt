@@ -27,10 +27,23 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
 //            itemDetails = itemDetails,
 //            isEntryValid = validateInput(itemDetails)
 //        )
-        itemUiState = itemUiState.copy(
-            itemDetails = itemDetails,
-            isEntryValid = validateInput(itemDetails)
-        )
+//        if (itemDetails.notes.length<=10){
+//            itemDetails.notes=itemDetails.notes.substring(0,10)
+//        }
+//        val newNotes = if (itemDetails.notes.length > 20) {
+//            itemDetails.notes.substring(0, 20)
+//        } else {
+//            itemDetails.notes
+//        }
+
+
+        if (limitText(itemDetails)){
+            itemUiState = itemUiState.copy(
+                itemDetails = itemDetails,//.copy(notes = newNotes),
+                isEntryValid = validateInput(itemDetails)
+            )
+        }
+
     }
 
     fun addMoreNumbers() {
@@ -91,9 +104,26 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
         // }
     }
 
+    private fun limitText(uiState: ItemDetails): Boolean {
+        return with(uiState) {
+            name.length<=20 && surname.length<=20 && email.length<=20 && notes.length<=20 && limitPhoneText(uiState)
+        }
+    }
+
+    private fun limitPhoneText(uiState: ItemDetails): Boolean {
+        val phoneRegex = "^\\+?[0-9]{1,20}$".toRegex()
+
+        for (phone in uiState.number) {
+            if (!phone.matches(phoneRegex)) {
+                return false
+            }
+        }
+        return true
+    }
+
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
         return with(uiState) {
-            name.isNotBlank() && number.isNotEmpty() && email.isNotBlank() && address.isNotBlank()
+            name.isNotBlank() && number.isNotEmpty()
                     && isValidPhone(number) //&& isValidEmail(email)
         }
     }
@@ -109,10 +139,10 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
 //        return phone.trim().length in 9..13 && Patterns.PHONE.matcher(phone).matches()
     }
 
-//    private fun isValidEmail(email: String): Boolean {
-//        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
-//        return email.matches(emailRegex.toRegex())
-//    }
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
+        return email.matches(emailRegex.toRegex())
+    }
 }
 
 data class ItemDetails(
@@ -123,7 +153,6 @@ data class ItemDetails(
     val number: List<String> = listOf(""),
     val numberTypes: List<String> = listOf("HOME"),//NumberTypes= NumberTypes.HOME,
     val email: String = "",
-    val address: String = "",
     val notes: String = ""
 ) {
     fun toItem(): Item = Item(

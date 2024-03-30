@@ -46,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -138,14 +139,37 @@ fun EntryBody(
         )
         TextField(
             value = itemDetails.notes,
+            //if (newValue.length<=10)
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(notes = newValue)) },
             label = { Text("Notes") },
             modifier = Modifier
-//                .fillMaxWidth()
-                .heightIn(max = 200.dp)
-                .widthIn(max=100.dp),
-            maxLines = 2
+                .padding(8.dp),
+//                .fillMaxWidth(),
+//            maxLines = 10
+            supportingText = {
+                Text(
+                    text = "${itemDetails.notes.length} / 10",
+//                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                )
+            }
         )
+//        val maxChar = 5
+
+//        TextField(
+//            value = text,
+//            onValueChange = {
+//                if (it.length <= maxChar) text = it
+//            },
+//            modifier = Modifier.fillMaxWidth(),
+//            supportingText = {
+//                Text(
+//                    text = "${text.length} / $maxChar",
+//                    modifier = Modifier.fillMaxWidth(),
+//                    textAlign = TextAlign.End,
+//                )
+//            },
+//        )
 
 
     }
@@ -196,10 +220,12 @@ fun EntryDrop(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+//        horizontalArrangement = Arrangement.Center,
+//        modifier = Modifier.fillMaxWidth()
     ) {
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+//            Row {
+//                Spacer(modifier = Modifier.width(36.dp))
             OutlinedTextField(
                 value = value,//selectedValue.toString(),
                 label = { Text(label) },
@@ -210,10 +236,12 @@ fun EntryDrop(
                     .menuAnchor()
                     .padding(8.dp)
             )
+//            }
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 typesAndColor.forEach { (type, color) ->
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(8.dp)
                     ) {
                         Image(
                             imageVector = Icons.Default.Person,
@@ -264,8 +292,8 @@ fun EntryIconAndText(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxWidth()
+//        horizontalArrangement = Arrangement.Center,
+//        modifier = Modifier.fillMaxWidth()
     ) {
         Image(
             imageVector = image,
