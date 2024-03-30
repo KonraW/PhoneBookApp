@@ -1,6 +1,7 @@
 package com.example.phonebookapp.ui.item
 
 import android.util.Log
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -33,7 +34,7 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
     }
 
     fun addMoreNumbers() {
-        if (itemUiState.enabledUsed < NumberTypes.values().size) {
+        if (itemUiState.isEnabledMore) {
             Log.d("EntryViewModel", "addMore: ${itemUiState.enabledUsed}")
 //            itemUiState = ItemUiState(
 //                itemDetails = itemUiState.itemDetails,
@@ -43,8 +44,16 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
 //            )
             val numberTypesList = itemUiState.itemDetails.numberTypes.toMutableList()
             val numberList = itemUiState.itemDetails.number.toMutableList()
-            numberTypesList.add("HOME")
-            numberList.add("")
+            for (i in 0 until NumberTypes.values().size) {
+                if (numberTypesList.contains(NumberTypes.values()[i].name)) {
+                    continue
+                }
+                numberTypesList.add(NumberTypes.values()[i].name)
+                numberList.add("")
+                break
+            }
+//            numberTypesList.add("HOME")
+//            numberList.add("")
 //            itemDetails = itemDetails.copy(numberTypes = numberTypesList)
 
             itemUiState = itemUiState.copy(
@@ -52,8 +61,8 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
                     number = numberList,
                     numberTypes = numberTypesList
                 ),
-                isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size,
-                enabledUsed = itemUiState.enabledUsed + 1
+                enabledUsed = itemUiState.enabledUsed + 1,
+                isEnabledMore = itemUiState.enabledUsed+2 < NumberTypes.values().size
             )
         }
     }
@@ -70,8 +79,8 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
                     number = numberList,
                     numberTypes = numberTypesList
                 ),
-                isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size,
-                enabledUsed = itemUiState.enabledUsed - 1
+                enabledUsed = itemUiState.enabledUsed - 1,
+                isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size
             )
         }
     }
@@ -85,15 +94,21 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
     private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
         return with(uiState) {
             name.isNotBlank() && number.isNotEmpty() && email.isNotBlank() && address.isNotBlank()
-//                    && isValidPhone(number) && isValidEmail(email)
+                    && isValidPhone(number) //&& isValidEmail(email)
         }
     }
 
 
-//    private fun isValidPhone(phone: String): Boolean {
+    private fun isValidPhone(phones: List<String>): Boolean {
+        for (phone in phones) {
+            if (phone.trim().length !in 9..13 || !Patterns.PHONE.matcher(phone).matches()) {
+                return false
+            }
+        }
+        return true
 //        return phone.trim().length in 9..13 && Patterns.PHONE.matcher(phone).matches()
-//    }
-//
+    }
+
 //    private fun isValidEmail(email: String): Boolean {
 //        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
 //        return email.matches(emailRegex.toRegex())
@@ -104,6 +119,7 @@ data class ItemDetails(
     val id: Int = 0,
     val name: String = "",
     val surname: String = "",
+    val category: String = "FAMILY",
     val number: List<String> = listOf(""),
     val numberTypes: List<String> = listOf("HOME"),//NumberTypes= NumberTypes.HOME,
     val email: String = "",
@@ -114,10 +130,10 @@ data class ItemDetails(
         id = id,
         name = name,
         surname = surname,
+        category = category,
         number = number,
         numberType = numberTypes,
         email = email,
-        address = address,
         notes = notes
     )
 }

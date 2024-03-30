@@ -6,14 +6,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
@@ -25,6 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,10 +43,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
 import kotlinx.coroutines.launch
@@ -95,28 +107,52 @@ fun EntryBody(
             image = Icons.Default.Person,
             value = itemDetails.name,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(name = newValue)) },
-            label = "Name"
+            label = "Name",
+            index = -1
         )
         EntryText(
             value = itemDetails.surname,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(surname = newValue)) },
             label = "Surname"
         )
+        EntryDrop(
+            typesAndColor = Category.values().map { it.name to it.color },
+            value = itemDetails.category,
+            color = Category.valueOf(itemDetails.category).color,
+            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(category = newValue)) },
+            label = "Category"
+        )
         for (i in 0..enabledUsed) {
-
-            EntryIconAndTextAndDrop(
+            EntryNumberAndType(
                 index = i,
                 itemDetails = itemDetails,
                 onItemValueChange = onItemValueChange
             )
         }
+        EntryIconAndText(
+            image = Icons.Default.MailOutline,
+            value = itemDetails.email,
+            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(email = newValue)) },
+            label = "Email",
+            index = -1
+        )
+        TextField(
+            value = itemDetails.notes,
+            onValueChange = { newValue -> onItemValueChange(itemDetails.copy(notes = newValue)) },
+            label = { Text("Notes") },
+            modifier = Modifier
+//                .fillMaxWidth()
+                .heightIn(max = 200.dp)
+                .widthIn(max=100.dp),
+            maxLines = 2
+        )
 
 
     }
 }
 
 @Composable
-fun EntryIconAndTextAndDrop(
+fun EntryNumberAndType(
     index: Int,
     itemDetails: ItemDetails,
     onItemValueChange: (ItemDetails) -> Unit
@@ -133,7 +169,9 @@ fun EntryIconAndTextAndDrop(
         index = index,
     )
     EntryDrop(
-        types = NumberTypes.values().map { it.name },
+        types = NumberTypes.values()
+//            .filter { !itemDetails.numberTypes.contains(it.name) }
+            .map { it.name },
         value = itemDetails.numberTypes[index],
 //        onValueChange = { newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue)) }
 
@@ -143,14 +181,18 @@ fun EntryIconAndTextAndDrop(
             updatedNumberList[index] = newValue
             onItemValueChange(itemDetails.copy(numberTypes = updatedNumberList))
         },
+        label = "Type"
     )
 }
 
 @Composable
 fun EntryDrop(
-    types: List<String>,
+    types: List<String> = emptyList(),
+    typesAndColor: List<Pair<String, Color>> = emptyList(),
     value: String,
-    onValueChange: (String) -> Unit
+    color: Color = Color.Black,
+    onValueChange: (String) -> Unit,
+    label: String
 ) {
     var expanded by remember { mutableStateOf(false) }
     Row(
@@ -160,7 +202,8 @@ fun EntryDrop(
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
                 value = value,//selectedValue.toString(),
-                label = { Text("Select") },
+                label = { Text(label) },
+                colors = TextFieldDefaults.outlinedTextFieldColors(color, color),
                 readOnly = true,
                 onValueChange = {},
                 modifier = Modifier
@@ -168,6 +211,24 @@ fun EntryDrop(
                     .padding(8.dp)
             )
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                typesAndColor.forEach { (type, color) ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(color)
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = type, color = color) },
+                            onClick = {
+                                onValueChange(type)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
                 for (type in types) {
                     DropdownMenuItem(
                         text = { Text(text = type) },
@@ -180,7 +241,6 @@ fun EntryDrop(
             }
         }
     }
-
 }
 
 
@@ -221,7 +281,8 @@ fun EntryIconAndText(
             },
             //{onValueChange(itemDetails.copy(number=it))},
             label = { Text(label) },
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(8.dp),
+            maxLines = 1
         )
 //        if (enabledMore) {
         if (index > 0) {
@@ -231,13 +292,15 @@ fun EntryIconAndText(
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
             }
-        } else {
+        } else if (index == 0 && viewModel.itemUiState.isEnabledMore) {
             FilledIconButton(
                 onClick = { viewModel.addMoreNumbers() },
                 modifier = Modifier.size(36.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
+        } else {
+            Spacer(modifier = Modifier.size(36.dp))
         }
 //        }
     }
@@ -253,7 +316,8 @@ fun EntryText(
         value = value,
         onValueChange = { onValueChange(it) },
         label = { Text(label) },
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(8.dp),
+        maxLines = 1
     )
 }
 
