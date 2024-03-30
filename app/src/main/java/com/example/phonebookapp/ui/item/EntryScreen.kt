@@ -6,18 +6,21 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
-import com.example.phonebookapp.ui.item.EntryViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,6 +84,7 @@ fun EntryBody(
     modifier: Modifier = Modifier
 ) {
     val itemDetails = itemUiState.itemDetails
+    val enabledUsed = itemUiState.enabledUsed
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -98,10 +101,14 @@ fun EntryBody(
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(surname = newValue)) },
             label = "Surname"
         )
-        EntryIconAndTextAndDrop(
-            itemDetails = itemDetails,
-            onItemValueChange = onItemValueChange
-        )
+        for (i in 0..enabledUsed) {
+
+            EntryIconAndTextAndDrop(
+                index = i,
+                itemDetails = itemDetails,
+                onItemValueChange = onItemValueChange
+            )
+        }
 
 
     }
@@ -109,65 +116,69 @@ fun EntryBody(
 
 @Composable
 fun EntryIconAndTextAndDrop(
+    index: Int,
     itemDetails: ItemDetails,
     onItemValueChange: (ItemDetails) -> Unit
-){
+) {
     EntryIconAndText(
         image = Icons.Default.Phone,
-        value = itemDetails.number,
-        onValueChange = { newValue -> onItemValueChange(itemDetails.copy(number = newValue)) },
+        value = itemDetails.number[index],
+        onValueChange = { newValue ->
+            val updatedNumberList = itemDetails.number.toMutableList()
+            updatedNumberList[index]=newValue
+            onItemValueChange(itemDetails.copy(number = updatedNumberList))
+        },
         label = "Phone"
     )
     EntryDrop(
-//            value=itemDetails.numberTypes,
         types = NumberTypes.values().map { it.name },
-        value= itemDetails.numberTypes,
-        itemDetails = itemDetails,
-        onValueChange =  { newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue)) }//onItemValueChange //= {newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue))}
+        value = itemDetails.numberTypes[index],
+//        onValueChange = { newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue)) }
+
+        onValueChange = { newValue ->
+            val updatedNumberList = itemDetails.numberTypes.toMutableList()
+//            updatedNumberList.add(newValue)
+            updatedNumberList[index]=newValue
+            onItemValueChange(itemDetails.copy(numberTypes = updatedNumberList))
+        },
     )
 }
 
 @Composable
 fun EntryDrop(
-//    value: NumberTypes,
     types: List<String>,
     value: String,
-    itemDetails: ItemDetails,
     onValueChange: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-//    var value by remember { mutableStateOf(NumberTypes.OTHER) }
-
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = value,//selectedValue.toString(),
-            label = { Text("Select") },
-            readOnly = true,
-            onValueChange = {},
-            modifier = Modifier
-//                .clickable(onClick = { expanded = !expanded })
-                .menuAnchor()
-                .padding(8.dp)
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-
-//            DropdownMenuItem(
-//                text = { Text(text = "Home") },
-//                onClick = { onValueChange(itemDetails.copy(numberTypes = NumberTypes.HOME)); expanded = false })
-//            DropdownMenuItem(
-//                text = { Text(text = "Mobile") },
-//                onClick = { onValueChange(itemDetails.copy(numberTypes = NumberTypes.MOBILE)); expanded = false })
-            for (type in types) {
-                DropdownMenuItem(
-                    text = { Text(text = type) },
-                    onClick = {
-                        onValueChange(type) //onValueChange(itemDetails.copy(numberTypes = type))
-                        expanded = false
-                    }
-                )
+    Row(
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+            OutlinedTextField(
+                value = value,//selectedValue.toString(),
+                label = { Text("Select") },
+                readOnly = true,
+                onValueChange = {},
+                modifier = Modifier
+                    .menuAnchor()
+                    .padding(8.dp)
+            )
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                for (type in types) {
+                    DropdownMenuItem(
+                        text = { Text(text = type) },
+                        onClick = {
+                            onValueChange(type)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
+
 }
 
 
@@ -183,18 +194,21 @@ fun EntryIconAndText(
     image: ImageVector,
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
+    onAddClick: () -> Unit = {},
+    viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Image(
             imageVector = image,
             contentDescription = null,
             modifier = Modifier
-                .padding(start = 4.dp, end = 12.dp)
+                .padding(start = 4.dp, end = 8.dp)
                 .size(24.dp)
         )
         OutlinedTextField(
@@ -203,9 +217,17 @@ fun EntryIconAndText(
                 onValueChange(newValue)
             },
             //{onValueChange(itemDetails.copy(number=it))},
-            label = { Text(label) }
+            label = { Text(label) },
+            modifier = Modifier.padding(8.dp)
         )
-        Spacer(modifier = Modifier.padding(20.dp))
+//        if (enabledMore) {
+        FilledIconButton(
+            onClick = { viewModel.addMoreNumbers() },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        }
+//        }
     }
 }
 
@@ -226,5 +248,11 @@ fun EntryText(
 @Preview(showBackground = true)
 @Composable
 fun PreviewEntryScreen() {
-    EntryScreen()
+//    EntryScreen()
+    Column(
+//        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+//        EntryIconAndTextAndDrop(itemDetails = ItemDetails(), onItemValueChange = {})
+
+    }
 }

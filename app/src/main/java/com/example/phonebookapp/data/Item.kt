@@ -9,8 +9,8 @@ data class Item(
     val id: Int = 0,
     val name: String,
     val surname: String,
-    val number: String,
-    val numberType: String,//NumberTypes,
+    val number: List<String>,
+    val numberType: List<String>,//NumberTypes,
     val email: String,
     val address: String,
     val notes: String
