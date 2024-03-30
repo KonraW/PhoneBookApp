@@ -58,6 +58,24 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
         }
     }
 
+    fun deleteNumber(index: Int){
+        if (itemUiState.enabledUsed > 0) {
+            Log.d("EntryViewModel", "deleteNumber: ${itemUiState.enabledUsed}")
+            val numberTypesList = itemUiState.itemDetails.numberTypes.toMutableList()
+            val numberList = itemUiState.itemDetails.number.toMutableList()
+            numberTypesList.removeAt(index)
+            numberList.removeAt(index)
+            itemUiState = itemUiState.copy(
+                itemDetails = itemUiState.itemDetails.copy(
+                    number = numberList,
+                    numberTypes = numberTypesList
+                ),
+                isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size,
+                enabledUsed = itemUiState.enabledUsed - 1
+            )
+        }
+    }
+
     suspend fun saveItem() {
         // if (validateInput()) {
         itemsRepository.insertItem(itemUiState.itemDetails.toItem())

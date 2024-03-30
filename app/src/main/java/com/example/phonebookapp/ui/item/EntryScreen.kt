@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
@@ -125,10 +126,11 @@ fun EntryIconAndTextAndDrop(
         value = itemDetails.number[index],
         onValueChange = { newValue ->
             val updatedNumberList = itemDetails.number.toMutableList()
-            updatedNumberList[index]=newValue
+            updatedNumberList[index] = newValue
             onItemValueChange(itemDetails.copy(number = updatedNumberList))
         },
-        label = "Phone"
+        label = "Phone",
+        index = index,
     )
     EntryDrop(
         types = NumberTypes.values().map { it.name },
@@ -138,7 +140,7 @@ fun EntryIconAndTextAndDrop(
         onValueChange = { newValue ->
             val updatedNumberList = itemDetails.numberTypes.toMutableList()
 //            updatedNumberList.add(newValue)
-            updatedNumberList[index]=newValue
+            updatedNumberList[index] = newValue
             onItemValueChange(itemDetails.copy(numberTypes = updatedNumberList))
         },
     )
@@ -195,6 +197,7 @@ fun EntryIconAndText(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    index: Int = 0,
     onAddClick: () -> Unit = {},
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -221,11 +224,20 @@ fun EntryIconAndText(
             modifier = Modifier.padding(8.dp)
         )
 //        if (enabledMore) {
-        FilledIconButton(
-            onClick = { viewModel.addMoreNumbers() },
-            modifier = Modifier.size(36.dp)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = null)
+        if (index > 0) {
+            FilledIconButton(
+                onClick = { viewModel.deleteNumber(index) },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+            }
+        } else {
+            FilledIconButton(
+                onClick = { viewModel.addMoreNumbers() },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = null)
+            }
         }
 //        }
     }
