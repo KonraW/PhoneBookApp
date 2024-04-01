@@ -1,5 +1,6 @@
 package com.example.phonebookapp.ui.item
 
+import android.net.Uri
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,8 +39,6 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
                 itemDetails = itemDetails, isEntryValid = validateInput(itemDetails)
             )
         }
-
-
     }
 
     fun addMoreNumbers() {
@@ -151,6 +150,7 @@ class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel()
 
 data class ItemDetails(
     val id: Int = 0,
+    val photo: Uri = Uri.EMPTY,
     val name: String = "",
     val surname: String = "",
     val category: String = "FAMILY",
@@ -161,6 +161,7 @@ data class ItemDetails(
 ) {
     fun toItem(): Item = Item(
         id = id,
+        photo = photo.toString(),
         name = name,
         surname = surname,
         category = category,

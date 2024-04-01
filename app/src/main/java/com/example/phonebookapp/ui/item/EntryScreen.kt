@@ -2,6 +2,10 @@
 
 package com.example.phonebookapp.ui.item
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +26,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -40,8 +46,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -49,6 +57,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
+import com.example.phonebookapp.R
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
@@ -106,6 +116,10 @@ fun EntryBody(
             .padding(8.dp)
             .fillMaxWidth()
     ) {
+        EntryPhoto(
+            itemDetails = itemDetails,
+            onItemValueChange = onItemValueChange
+        )
         EntryIconAndText(
             image = Icons.Default.Person,
             value = itemDetails.name,
@@ -140,7 +154,8 @@ fun EntryBody(
             index = -1,
             isError = itemUiState.emailError
         )
-        TextField(value = itemDetails.notes,
+        TextField(
+            value = itemDetails.notes,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(notes = newValue)) },
             label = { Text("Notes") },
             modifier = Modifier.padding(8.dp),
@@ -160,6 +175,40 @@ fun EntryBody(
             })
 
         )
+    }
+}
+
+@Composable
+fun EntryPhoto(
+    itemDetails: ItemDetails, onItemValueChange: (ItemDetails) -> Unit
+) {
+
+    val pickMediaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            onItemValueChange(itemDetails.copy(photo = uri))
+        }
+    }
+
+    val painter: Painter = rememberAsyncImagePainter(model = itemDetails.photo.toString())
+    Card(
+        modifier = Modifier
+            .padding(16.dp)
+            .clip(RoundedCornerShape(96.dp))
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = "Photo",
+            modifier = Modifier.size(192.dp),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
+    }
+
+    Button(onClick = {
+        pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }) {
+        Text("Add Avatar")
     }
 }
 
@@ -295,7 +344,8 @@ fun EntryIconAndText(
 fun EntryText(
     value: String, onValueChange: (String) -> Unit, label: String, isError: String
 ) {
-    OutlinedTextField(value = value,
+    OutlinedTextField(
+        value = value,
         onValueChange = { newValue ->
             onValueChange(newValue)
         },
