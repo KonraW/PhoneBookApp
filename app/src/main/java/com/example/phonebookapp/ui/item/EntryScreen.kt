@@ -31,7 +31,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,18 +61,14 @@ fun EntryScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            EntryTopBar(
-                onSaveClick = { coroutineScope.launch { viewModel.saveItem() } }
-            )
-        }
-    ) { innerPadding ->
+    Scaffold(topBar = {
+        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.saveItem() } })
+    }) { innerPadding ->
         EntryBody(
             viewModel = viewModel,
             itemUiState = viewModel.itemUiState,
             onItemValueChange = viewModel::updateUiState,
-            coroutineScope=coroutineScope,
+            coroutineScope = coroutineScope,
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -134,9 +129,7 @@ fun EntryBody(
         )
         for (i in 0..enabledUsed) {
             EntryNumberAndType(
-                index = i,
-                itemDetails = itemDetails,
-                onItemValueChange = onItemValueChange
+                index = i, itemDetails = itemDetails, onItemValueChange = onItemValueChange
             )
         }
         EntryIconAndText(
@@ -147,12 +140,10 @@ fun EntryBody(
             index = -1,
             isError = itemUiState.emailError
         )
-        TextField(
-            value = itemDetails.notes,
+        TextField(value = itemDetails.notes,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(notes = newValue)) },
             label = { Text("Notes") },
-            modifier = Modifier
-                .padding(8.dp),
+            modifier = Modifier.padding(8.dp),
             supportingText = {
                 Text(
                     text = "${itemDetails.notes.length} / 20",
@@ -160,16 +151,13 @@ fun EntryBody(
                 )
             },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
+                keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
             ),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    coroutineScope.launch {
-                        viewModel.saveItem()
-                    }
+            keyboardActions = KeyboardActions(onDone = {
+                coroutineScope.launch {
+                    viewModel.saveItem()
                 }
-            )
+            })
 
         )
     }
@@ -199,8 +187,7 @@ fun EntryNumberAndType(
         },
     )
     EntryDrop(
-        types = NumberTypes.values()
-            .map { it.name },
+        types = NumberTypes.values().map { it.name },
         value = itemDetails.numberTypes[index],
         onValueChange = { newValue ->
             val updatedNumberList = itemDetails.numberTypes.toMutableList()
@@ -221,8 +208,7 @@ fun EntryDrop(
     label: String
 ) {
     var expanded by remember { mutableStateOf(false) }
-    Row(
-    ) {
+    Row {
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             OutlinedTextField(
                 value = value,
@@ -248,23 +234,17 @@ fun EntryDrop(
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(color)
                         )
-                        DropdownMenuItem(
-                            text = { Text(text = type, color = color) },
-                            onClick = {
-                                onValueChange(type)
-                                expanded = false
-                            }
-                        )
+                        DropdownMenuItem(text = { Text(text = type, color = color) }, onClick = {
+                            onValueChange(type)
+                            expanded = false
+                        })
                     }
                 }
                 for (type in types) {
-                    DropdownMenuItem(
-                        text = { Text(text = type) },
-                        onClick = {
-                            onValueChange(type)
-                            expanded = false
-                        }
-                    )
+                    DropdownMenuItem(text = { Text(text = type) }, onClick = {
+                        onValueChange(type)
+                        expanded = false
+                    })
                 }
             }
         }
@@ -292,52 +272,16 @@ fun EntryIconAndText(
                 .size(24.dp)
         )
         EntryText(value = value, onValueChange = onValueChange, label = label, isError = isError)
-//        OutlinedTextField(
-//            value = value,
-//            onValueChange = { newValue ->
-//                onValueChange(newValue)
-//            },
-//            label = { Text(label) },
-//            modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
-//            maxLines = 1,
-//            isError = isError.isNotBlank(),
-//            trailingIcon = {
-//                if (isError.isNotBlank()) {
-//                    Icon(
-//                        imageVector = Icons.Default.Warning,
-//                        contentDescription = null,
-//                        tint = Color.Red
-//                    )
-//                }
-//            },
-//            supportingText = {
-//                if (isError.isNotBlank()) {
-//                    Text(
-//                        text = isError,
-//                        color = Color.Red
-//                    )
-//                }
-//            },
-//            keyboardOptions = KeyboardOptions(
-//                keyboardType = when (label) {
-//                    "Phone" -> KeyboardType.Phone
-//                    "Email" -> KeyboardType.Email
-//                    else -> KeyboardType.Text
-//                },
-//                imeAction = ImeAction.Next
-//            )
-//        )
+
         if (index > 0) {
             FilledIconButton(
-                onClick = { viewModel.deleteNumber(index) },
-                modifier = Modifier.size(36.dp)
+                onClick = { viewModel.deleteNumber(index) }, modifier = Modifier.size(36.dp)
             ) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
             }
         } else if (index == 0 && viewModel.itemUiState.isEnabledMore) {
             FilledIconButton(
-                onClick = { viewModel.addMoreNumbers() },
-                modifier = Modifier.size(36.dp)
+                onClick = { viewModel.addMoreNumbers() }, modifier = Modifier.size(36.dp)
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
@@ -349,13 +293,9 @@ fun EntryIconAndText(
 
 @Composable
 fun EntryText(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    isError: String
+    value: String, onValueChange: (String) -> Unit, label: String, isError: String
 ) {
-    OutlinedTextField(
-        value = value,
+    OutlinedTextField(value = value,
         onValueChange = { newValue ->
             onValueChange(newValue)
         },
@@ -366,17 +306,14 @@ fun EntryText(
         trailingIcon = {
             if (isError.isNotBlank()) {
                 Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = null,
-                    tint = Color.Red
+                    imageVector = Icons.Default.Warning, contentDescription = null, tint = Color.Red
                 )
             }
         },
         supportingText = {
             if (isError.isNotBlank()) {
                 Text(
-                    text = isError,
-                    color = Color.Red
+                    text = isError, color = Color.Red
                 )
             }
         },
@@ -385,8 +322,7 @@ fun EntryText(
                 "Phone" -> KeyboardType.Phone
                 "Email" -> KeyboardType.Email
                 else -> KeyboardType.Text
-            },
-            imeAction = ImeAction.Next
+            }, imeAction = ImeAction.Next
         )
     )
 }
@@ -395,9 +331,7 @@ fun EntryText(
 @Composable
 fun PreviewEntryScreen() {
 //    EntryScreen()
-    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column {
 //        EntryIconAndTextAndDrop(itemDetails = ItemDetails(), onItemValueChange = {})
 
     }
