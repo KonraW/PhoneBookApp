@@ -3,18 +3,14 @@
 package com.example.phonebookapp.ui.item
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,6 +18,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +29,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -46,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,24 +51,27 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun EntryScreen(
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val corutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
             EntryTopBar(
-                onSaveClick = { corutineScope.launch { viewModel.saveItem() } }
+                onSaveClick = { coroutineScope.launch { viewModel.saveItem() } }
             )
         }
     ) { innerPadding ->
         EntryBody(
+            viewModel = viewModel,
             itemUiState = viewModel.itemUiState,
             onItemValueChange = viewModel::updateUiState,
+            coroutineScope=coroutineScope,
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -93,8 +94,10 @@ fun EntryTopBar(
 
 @Composable
 fun EntryBody(
+    viewModel: EntryViewModel,
     itemUiState: ItemUiState,
     onItemValueChange: (ItemDetails) -> Unit,
+    coroutineScope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
     val itemDetails = itemUiState.itemDetails
@@ -109,7 +112,8 @@ fun EntryBody(
             value = itemDetails.name,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(name = newValue)) },
             label = "Name",
-            index = -1
+            index = -1,
+            isError = itemUiState.nameError
         )
         EntryText(
             value = itemDetails.surname,
@@ -135,7 +139,8 @@ fun EntryBody(
             value = itemDetails.email,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(email = newValue)) },
             label = "Email",
-            index = -1
+            index = -1,
+            isError = itemUiState.emailError
         )
         TextField(
             value = itemDetails.notes,
@@ -148,11 +153,23 @@ fun EntryBody(
 //            maxLines = 10
             supportingText = {
                 Text(
-                    text = "${itemDetails.notes.length} / 10",
+                    text = "${itemDetails.notes.length} / 20",
 //                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End,
                 )
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    coroutineScope.launch {
+                        viewModel.saveItem()
+                    }
+                }
+            )
+
         )
 //        val maxChar = 5
 
@@ -179,7 +196,8 @@ fun EntryBody(
 fun EntryNumberAndType(
     index: Int,
     itemDetails: ItemDetails,
-    onItemValueChange: (ItemDetails) -> Unit
+    onItemValueChange: (ItemDetails) -> Unit,
+    viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     EntryIconAndText(
         image = Icons.Default.Phone,
@@ -191,6 +209,11 @@ fun EntryNumberAndType(
         },
         label = "Phone",
         index = index,
+        isError = if (index == 0) {
+            viewModel.itemUiState.numberError
+        } else {
+            ""
+        },
     )
     EntryDrop(
         types = NumberTypes.values()
@@ -241,7 +264,7 @@ fun EntryDrop(
                 typesAndColor.forEach { (type, color) ->
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(4.dp)
                     ) {
                         Image(
                             imageVector = Icons.Default.Person,
@@ -286,6 +309,7 @@ fun EntryIconAndText(
     onValueChange: (String) -> Unit,
     label: String,
     index: Int = 0,
+    isError: String,
     onAddClick: () -> Unit = {},
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -309,8 +333,34 @@ fun EntryIconAndText(
             },
             //{onValueChange(itemDetails.copy(number=it))},
             label = { Text(label) },
-            modifier = Modifier.padding(8.dp),
-            maxLines = 1
+            modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
+            maxLines = 1,
+            isError = isError.isNotBlank(),
+            trailingIcon = {
+                if (isError.isNotBlank()) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = Color.Red
+                    )
+                }
+            },
+            supportingText = {
+                if (isError.isNotBlank()) {
+                    Text(
+                        text = isError,
+                        color = Color.Red
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = when (label) {
+                    "Phone" -> KeyboardType.Phone
+                    "Email" -> KeyboardType.Email
+                    else -> KeyboardType.Text
+                },
+                imeAction = ImeAction.Next
+            )
         )
 //        if (enabledMore) {
         if (index > 0) {
@@ -345,7 +395,11 @@ fun EntryText(
         onValueChange = { onValueChange(it) },
         label = { Text(label) },
         modifier = Modifier.padding(8.dp),
-        maxLines = 1
+        maxLines = 1,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Next
+        )
     )
 }
 
