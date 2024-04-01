@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -26,6 +27,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -105,7 +107,9 @@ fun EntryBody(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.padding(8.dp)
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
     ) {
         EntryIconAndText(
             image = Icons.Default.Person,
@@ -118,7 +122,8 @@ fun EntryBody(
         EntryText(
             value = itemDetails.surname,
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(surname = newValue)) },
-            label = "Surname"
+            label = "Surname",
+            isError = ""
         )
         EntryDrop(
             typesAndColor = Category.values().map { it.name to it.color },
@@ -144,17 +149,13 @@ fun EntryBody(
         )
         TextField(
             value = itemDetails.notes,
-            //if (newValue.length<=10)
             onValueChange = { newValue -> onItemValueChange(itemDetails.copy(notes = newValue)) },
             label = { Text("Notes") },
             modifier = Modifier
                 .padding(8.dp),
-//                .fillMaxWidth(),
-//            maxLines = 10
             supportingText = {
                 Text(
                     text = "${itemDetails.notes.length} / 20",
-//                    modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.End,
                 )
             },
@@ -171,24 +172,6 @@ fun EntryBody(
             )
 
         )
-//        val maxChar = 5
-
-//        TextField(
-//            value = text,
-//            onValueChange = {
-//                if (it.length <= maxChar) text = it
-//            },
-//            modifier = Modifier.fillMaxWidth(),
-//            supportingText = {
-//                Text(
-//                    text = "${text.length} / $maxChar",
-//                    modifier = Modifier.fillMaxWidth(),
-//                    textAlign = TextAlign.End,
-//                )
-//            },
-//        )
-
-
     }
 }
 
@@ -217,14 +200,10 @@ fun EntryNumberAndType(
     )
     EntryDrop(
         types = NumberTypes.values()
-//            .filter { !itemDetails.numberTypes.contains(it.name) }
             .map { it.name },
         value = itemDetails.numberTypes[index],
-//        onValueChange = { newValue -> onItemValueChange(itemDetails.copy(numberTypes = newValue)) }
-
         onValueChange = { newValue ->
             val updatedNumberList = itemDetails.numberTypes.toMutableList()
-//            updatedNumberList.add(newValue)
             updatedNumberList[index] = newValue
             onItemValueChange(itemDetails.copy(numberTypes = updatedNumberList))
         },
@@ -243,23 +222,21 @@ fun EntryDrop(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Row(
-//        horizontalArrangement = Arrangement.Center,
-//        modifier = Modifier.fillMaxWidth()
     ) {
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-//            Row {
-//                Spacer(modifier = Modifier.width(36.dp))
             OutlinedTextField(
-                value = value,//selectedValue.toString(),
+                value = value,
                 label = { Text(label) },
-                colors = TextFieldDefaults.outlinedTextFieldColors(color, color),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = color,
+                    unfocusedTextColor = color,
+                ),
                 readOnly = true,
                 onValueChange = {},
                 modifier = Modifier
                     .menuAnchor()
                     .padding(8.dp)
             )
-//            }
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 typesAndColor.forEach { (type, color) ->
                     Row(
@@ -294,14 +271,6 @@ fun EntryDrop(
     }
 }
 
-
-@Composable
-fun EntryTexts() {
-    Column {
-
-    }
-}
-
 @Composable
 fun EntryIconAndText(
     image: ImageVector,
@@ -310,14 +279,10 @@ fun EntryIconAndText(
     label: String,
     index: Int = 0,
     isError: String,
-    onAddClick: () -> Unit = {},
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-//        horizontalArrangement = Arrangement.Center,
-//        modifier = Modifier.fillMaxWidth()
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
             imageVector = image,
@@ -326,43 +291,42 @@ fun EntryIconAndText(
                 .padding(start = 4.dp, end = 8.dp)
                 .size(24.dp)
         )
-        OutlinedTextField(
-            value = value,
-            onValueChange = { newValue ->
-                onValueChange(newValue)
-            },
-            //{onValueChange(itemDetails.copy(number=it))},
-            label = { Text(label) },
-            modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
-            maxLines = 1,
-            isError = isError.isNotBlank(),
-            trailingIcon = {
-                if (isError.isNotBlank()) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = null,
-                        tint = Color.Red
-                    )
-                }
-            },
-            supportingText = {
-                if (isError.isNotBlank()) {
-                    Text(
-                        text = isError,
-                        color = Color.Red
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = when (label) {
-                    "Phone" -> KeyboardType.Phone
-                    "Email" -> KeyboardType.Email
-                    else -> KeyboardType.Text
-                },
-                imeAction = ImeAction.Next
-            )
-        )
-//        if (enabledMore) {
+        EntryText(value = value, onValueChange = onValueChange, label = label, isError = isError)
+//        OutlinedTextField(
+//            value = value,
+//            onValueChange = { newValue ->
+//                onValueChange(newValue)
+//            },
+//            label = { Text(label) },
+//            modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
+//            maxLines = 1,
+//            isError = isError.isNotBlank(),
+//            trailingIcon = {
+//                if (isError.isNotBlank()) {
+//                    Icon(
+//                        imageVector = Icons.Default.Warning,
+//                        contentDescription = null,
+//                        tint = Color.Red
+//                    )
+//                }
+//            },
+//            supportingText = {
+//                if (isError.isNotBlank()) {
+//                    Text(
+//                        text = isError,
+//                        color = Color.Red
+//                    )
+//                }
+//            },
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = when (label) {
+//                    "Phone" -> KeyboardType.Phone
+//                    "Email" -> KeyboardType.Email
+//                    else -> KeyboardType.Text
+//                },
+//                imeAction = ImeAction.Next
+//            )
+//        )
         if (index > 0) {
             FilledIconButton(
                 onClick = { viewModel.deleteNumber(index) },
@@ -380,7 +344,6 @@ fun EntryIconAndText(
         } else {
             Spacer(modifier = Modifier.size(36.dp))
         }
-//        }
     }
 }
 
@@ -388,16 +351,41 @@ fun EntryIconAndText(
 fun EntryText(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
+    isError: String
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = { onValueChange(it) },
+        onValueChange = { newValue ->
+            onValueChange(newValue)
+        },
         label = { Text(label) },
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp),
         maxLines = 1,
+        isError = isError.isNotBlank(),
+        trailingIcon = {
+            if (isError.isNotBlank()) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    tint = Color.Red
+                )
+            }
+        },
+        supportingText = {
+            if (isError.isNotBlank()) {
+                Text(
+                    text = isError,
+                    color = Color.Red
+                )
+            }
+        },
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
+            keyboardType = when (label) {
+                "Phone" -> KeyboardType.Phone
+                "Email" -> KeyboardType.Email
+                else -> KeyboardType.Text
+            },
             imeAction = ImeAction.Next
         )
     )
