@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.phonebookapp.ui.item
 
@@ -58,27 +57,48 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.phonebookapp.R
+import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
+import com.example.phonebookapp.ui.navigation.NavigationDestination
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+object EntryDestination : NavigationDestination {
+    override val route = "item_entry"
+    override val titleRes = "Add New Contact"
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryScreen(
+    onNavigateUp:() -> Unit,
+    navigateBack: () -> Unit,
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
-        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.saveItem() } })
+//        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.saveItem() } })
+
+        PhoneBookTopAppBar(title = "edit", canNavigateBack = true, navigateUp = onNavigateUp, canClickButton = true, onClickButton = {
+            coroutineScope.launch {
+                viewModel.saveItem()
+            }
+        })
     }) { innerPadding ->
         EntryBody(
             viewModel = viewModel,
             itemUiState = viewModel.itemUiState,
             onItemValueChange = viewModel::updateUiState,
-            coroutineScope = coroutineScope,
+            onSaveClick = {
+                coroutineScope.launch {
+                    viewModel.saveItem()
+                }
+            },
+//            coroutineScope = coroutineScope,
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
@@ -86,6 +106,7 @@ fun EntryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryTopBar(
     onSaveClick: () -> Unit
@@ -101,10 +122,11 @@ fun EntryTopBar(
 
 @Composable
 fun EntryBody(
-    viewModel: EntryViewModel,
+    viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory),
     itemUiState: ItemUiState,
-    onItemValueChange: (ItemDetails) -> Unit,
-    coroutineScope: CoroutineScope,
+    onItemValueChange: (ItemDetails) -> Unit = viewModel::updateUiState,
+    onSaveClick: () -> Unit,
+//    coroutineScope: CoroutineScope,
     modifier: Modifier = Modifier
 ) {
     val itemDetails = itemUiState.itemDetails
@@ -169,9 +191,7 @@ fun EntryBody(
                 keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(onDone = {
-                coroutineScope.launch {
-                    viewModel.saveItem()
-                }
+                onSaveClick()
             })
 
         )
@@ -208,7 +228,7 @@ fun EntryPhoto(
     Button(onClick = {
         pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }) {
-        Text("Add Avatar")
+        Text("Add Photo")
     }
 }
 
@@ -247,6 +267,7 @@ fun EntryNumberAndType(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryDrop(
     types: List<String> = emptyList(),

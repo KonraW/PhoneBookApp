@@ -1,5 +1,8 @@
+
+
 package com.example.phonebookapp.ui.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,14 +24,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Item
 import com.example.phonebookapp.ui.AppViewModelProvider
+import com.example.phonebookapp.ui.navigation.NavigationDestination
 import com.example.phonebookapp.ui.theme.PhoneBookAppTheme
 import kotlinx.coroutines.launch
 
+object HomeDestination : NavigationDestination {
+    override val route = "home"
+    override val titleRes = "Phone Book App"
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    name: String,
+    navigateToItemEntry: () -> Unit,
+    navigateToItemUpdate: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -48,6 +62,9 @@ fun HomeScreen(
 //    coroutineScope.launch {
 //        viewModel.deleteAllItems(homeUiState.itemList)
 //    }
+    PhoneBookTopAppBar(title = "home", canNavigateBack = false, canClickButton = true, onClickButton = {
+        navigateToItemEntry()
+    })
 
     PeopleList(
         homeUiState.itemList,
@@ -56,6 +73,9 @@ fun HomeScreen(
                 viewModel.deleteAllItems(homeUiState.itemList)
             }
         },
+        navigateToItemUpdate = navigateToItemUpdate,
+//        onItemClick = {
+//        },
         modifier = modifier
     )
 }
@@ -64,6 +84,8 @@ fun HomeScreen(
 private fun PeopleList(
     itemList: List<Item>,
     onClick: () -> Unit = {},
+    navigateToItemUpdate: (Int) -> Unit,
+//    onItemClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -73,18 +95,19 @@ private fun PeopleList(
 
         LazyColumn(modifier = modifier) {
             items(items = itemList, key = { it.id }) {
-                PersonRow(item = it)
+                PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
             }
         }
     }
 }
 
 @Composable
-private fun PersonRow(item: Item) {
+private fun PersonRow(item: Item, onItemClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable(onClick = onItemClick),
 //        horizontalArrangement = Arrangement.SpaceBetween,
 //        verticalAlignment = Alignment.CenterVertically
     ) {

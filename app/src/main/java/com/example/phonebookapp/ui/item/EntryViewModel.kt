@@ -170,4 +170,22 @@ data class ItemDetails(
         email = email,
         notes = notes
     )
+
 }
+
+fun Item.toItemDetails(): ItemDetails = ItemDetails(
+    id = id,
+    photo = Uri.parse(photo),
+    name = name,
+    surname = surname,
+    category = category,
+    number = number,
+    numberTypes = numberType,
+    email = email,
+    notes = notes
+)
+
+fun Item.toItemUiState(isEntryValid: Boolean = false): ItemUiState = ItemUiState(
+    itemDetails = this.toItemDetails(),
+    isEntryValid = isEntryValid
+)
