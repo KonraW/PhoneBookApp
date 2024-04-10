@@ -18,7 +18,8 @@ object AppViewModelProvider {
         }
         initializer {
             EntryViewModel(
-                peopleApplication().container.itemsRepository
+                this.createSavedStateHandle(),
+                itemsRepository =  peopleApplication().container.itemsRepository
             )
         }
         initializer {

@@ -26,7 +26,7 @@ object EditDestination : NavigationDestination {
 fun EditScreen(
     onNavigateUp:() -> Unit,
     navigateBack: () -> Unit,
-    viewModel: EditViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
 

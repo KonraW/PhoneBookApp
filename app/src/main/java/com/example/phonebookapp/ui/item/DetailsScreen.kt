@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.phonebookapp.PhoneBookTopAppBar
+import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.navigation.NavigationDestination
 import com.example.phonebookapp.ui.theme.PhoneBookAppTheme
@@ -83,54 +84,58 @@ fun DetailsScreen(
             modifier = Modifier
                 .padding(innerPadding)
         ) {
-            item { DetailsBody() }
+            item { DetailsBody(
+                itemDetails=uiState.value.itemDetails
+            ) }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DetailsTopBar() {
-    TopAppBar(
-        navigationIcon = {
-            DetailsButton(image = Icons.Default.ArrowBack) {
-            }
-        },
-        title = {
-            Row(
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-                DetailsButton(
-                    image = Icons.Default.Edit,
-                    onClick = {}
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    )
-}
+//@OptIn(ExperimentalMaterial3Api::class)
+//@Composable
+//fun DetailsTopBar() {
+//    TopAppBar(
+//        navigationIcon = {
+//            DetailsButton(image = Icons.Default.ArrowBack) {
+//            }
+//        },
+//        title = {
+//            Row(
+//            ) {
+//                Spacer(modifier = Modifier.weight(1f))
+//                DetailsButton(
+//                    image = Icons.Default.Edit,
+//                    onClick = {}
+//                )
+//            }
+//        },
+//        colors = TopAppBarDefaults.topAppBarColors(
+//            containerColor = MaterialTheme.colorScheme.primaryContainer
+//        )
+//    )
+//}
+//
+//@Composable
+//fun DetailsButton(
+//    image: ImageVector,
+//    onClick: () -> Unit
+//) {
+//    FloatingActionButton(
+//        onClick = onClick,
+//        elevation = FloatingActionButtonDefaults.elevation(0.dp)
+//    ) {
+//        Image(
+//            imageVector = image,
+//            contentDescription = null
+//        )
+//    }
+//}
+
 
 @Composable
-fun DetailsButton(
-    image: ImageVector,
-    onClick: () -> Unit
+fun DetailsBody(
+    itemDetails: ItemDetails
 ) {
-    FloatingActionButton(
-        onClick = onClick,
-        elevation = FloatingActionButtonDefaults.elevation(0.dp)
-    ) {
-        Image(
-            imageVector = image,
-            contentDescription = null
-        )
-    }
-}
-
-
-@Composable
-fun DetailsBody() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -139,15 +144,15 @@ fun DetailsBody() {
     ) {
         DetailsPhoto()
         DetailsName(
-            text = "Name"
+            text = itemDetails.name+" "+itemDetails.surname
         )
         DetailsCategory(
-            text = "Family",
+            text = itemDetails.category,
             icon = Icons.Default.Person,
-            color = Color.Red
+            color = Category.valueOf(itemDetails.category).color
         )
         DetailsButtons()
-        DetailsList()
+        DetailsList(itemDetails = itemDetails)
     }
 
 }
@@ -172,12 +177,12 @@ fun DetailsCategory(text: String, icon: ImageVector, color: Color) {
 
 @Composable
 fun DetailsList(
-    viewModel: DetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    itemDetails: ItemDetails
 ) {
 
-    val uiState = viewModel.uiState.collectAsState()
+//    val uiState = viewModel.uiState.collectAsState()
     Column {
-        for (items in uiState.value.itemDetails.number) {
+        for (items in itemDetails.number) {
             Text(text = items)
         }
     }

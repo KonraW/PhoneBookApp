@@ -5,10 +5,15 @@ import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.phonebookapp.data.Item
 import com.example.phonebookapp.data.ItemsRepository
 import com.example.phonebookapp.data.NumberTypes
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 data class ItemUiState(
     val itemDetails: ItemDetails = ItemDetails(),
@@ -20,9 +25,45 @@ data class ItemUiState(
     val emailError: String = "",
 )
 
-class EntryViewModel(private val itemsRepository: ItemsRepository) : ViewModel() {
+class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel() {
     var itemUiState by mutableStateOf(ItemUiState())
         private set
+
+    constructor(
+        savedStateHandle: SavedStateHandle?,
+        itemsRepository: ItemsRepository
+    ) : this(itemsRepository) {
+        savedStateHandle?.let { handle ->
+            val itemId: Int? = handle[EditDestination.itemIdArg]
+            if (itemId != null) {
+                viewModelScope.launch {
+                    itemUiState = itemsRepository.getItemStream(itemId)
+                        .filterNotNull()
+                        .first()
+                        .toItemUiState(true)
+
+                    itemUiState = itemUiState.copy(
+                        enabledUsed = itemUiState.itemDetails.number.size-1,
+                        isEnabledMore = itemUiState.itemDetails.number.size < NumberTypes.values().size
+                    )
+                }
+
+            }
+//            viewModelScope.launch {
+//                itemUiState = itemsRepository.getItemStream(itemId)
+//                    .filterNotNull()
+//                    .first()
+//                    .toItemUiState(true)
+//            }
+        }
+    }
+
+
+    suspend fun updateItem() {
+        if (validateInput()) {
+            itemsRepository.updateItem(itemUiState.itemDetails.toItem())
+        }
+    }
 
     fun updateUiState(itemDetails: ItemDetails) {
         if (itemUiState.itemDetails.name != itemDetails.name) {

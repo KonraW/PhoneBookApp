@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.phonebookapp.data.ItemsRepository
+import com.example.phonebookapp.data.NumberTypes
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -31,6 +32,43 @@ class EditViewModel(
     suspend fun updateItem() {
         if (validateInput()) {
             itemsRepository.updateItem(itemUiState.itemDetails.toItem())
+        }
+    }
+    fun addMoreNumbers() {
+        if (itemUiState.isEnabledMore) {
+            val numberTypesList = itemUiState.itemDetails.numberTypes.toMutableList()
+            val numberList = itemUiState.itemDetails.number.toMutableList()
+            for (i in 0 until NumberTypes.values().size) {
+                if (numberTypesList.contains(NumberTypes.values()[i].name)) {
+                    continue
+                }
+                numberTypesList.add(NumberTypes.values()[i].name)
+                numberList.add("")
+                break
+            }
+            itemUiState = itemUiState.copy(
+                itemDetails = itemUiState.itemDetails.copy(
+                    number = numberList, numberTypes = numberTypesList
+                ),
+                enabledUsed = itemUiState.enabledUsed + 1,
+                isEnabledMore = itemUiState.enabledUsed + 2 < NumberTypes.values().size
+            )
+        }
+    }
+
+    fun deleteNumber(index: Int) {
+        if (itemUiState.enabledUsed > 0) {
+            val numberTypesList = itemUiState.itemDetails.numberTypes.toMutableList()
+            val numberList = itemUiState.itemDetails.number.toMutableList()
+            numberTypesList.removeAt(index)
+            numberList.removeAt(index)
+            itemUiState = itemUiState.copy(
+                itemDetails = itemUiState.itemDetails.copy(
+                    number = numberList, numberTypes = numberTypesList
+                ),
+                enabledUsed = itemUiState.enabledUsed - 1,
+                isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size
+            )
         }
     }
     fun updateUiState(itemDetails: ItemDetails) {
