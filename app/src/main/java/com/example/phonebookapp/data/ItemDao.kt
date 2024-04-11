@@ -27,4 +27,7 @@ interface ItemDao {
 
     @Query("DELETE FROM items")
     suspend fun deleteAllItems()
+
+    @Query("SELECT MAX(id) FROM items")
+    fun getLastItemId(): Flow<Int?>
 }

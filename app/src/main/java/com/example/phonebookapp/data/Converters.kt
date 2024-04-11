@@ -5,7 +5,7 @@ import androidx.room.TypeConverter
 class Converters {
     @TypeConverter
     fun fromStringList(list: List<String>): String {
-        return list.filter { it.isNotBlank() }.joinToString(separator = ",")
+        return list.joinToString(separator = ",")
     }
 
     @TypeConverter

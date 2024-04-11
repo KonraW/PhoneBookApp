@@ -10,7 +10,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.phonebookapp.PhoneBookTopAppBar
-import com.example.phonebookapp.R
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
@@ -21,28 +20,44 @@ object EditDestination : NavigationDestination {
     const val itemIdArg = "itemId"
     val routeWithArgs = "$route/{$itemIdArg}"
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditScreen(
-    onNavigateUp:() -> Unit,
+    onNavigateUp: () -> Unit,
     navigateBack: () -> Unit,
+    navigateToItemDetails: (Int) -> Unit,
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
 //        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.updateItem() } })
-        PhoneBookTopAppBar(title = "edit", canNavigateBack = true, navigateUp = onNavigateUp, canClickButton = true, onClickButton = {
-            coroutineScope.launch {
-                viewModel.updateItem()
-            }
-        })
+        PhoneBookTopAppBar(title = "edit",
+            canNavigateBack = true,
+            navigateUp = onNavigateUp,
+            canClickButton = true,
+            onClickButton = {
+                coroutineScope.launch {
+                    viewModel.updateItem()
+                    if (viewModel.validateInput()) {
+                        navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
+                    }
+                }
+            })
     }) { innerPadding ->
         EntryBody(
 //            viewModel = viewModel,
             itemUiState = viewModel.itemUiState,
             onItemValueChange = viewModel::updateUiState,
-            onSaveClick = { coroutineScope.launch { viewModel.updateItem() } },
+            onSaveClick = {
+                coroutineScope.launch {
+                    viewModel.updateItem()
+                    if (viewModel.validateInput()) {
+                        navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
+                    }
+                }
+            },
 //            coroutineScope = coroutineScope,
             modifier = Modifier
                 .padding(innerPadding)

@@ -9,4 +9,5 @@ interface ItemsRepository {
     suspend fun deleteItem(item: Item)
     suspend fun updateItem(item: Item)
     suspend fun deleteAllItems(list: List<Item>)
+    fun getLastItemId(): Flow<Int?>
 }

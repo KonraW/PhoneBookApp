@@ -1,6 +1,7 @@
 package com.example.phonebookapp.ui.item
 
 import android.net.Uri
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,8 +12,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.phonebookapp.data.Item
 import com.example.phonebookapp.data.ItemsRepository
 import com.example.phonebookapp.data.NumberTypes
+import com.example.phonebookapp.ui.home.HomeUiState
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 data class ItemUiState(
@@ -28,6 +34,28 @@ data class ItemUiState(
 class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel() {
     var itemUiState by mutableStateOf(ItemUiState())
         private set
+
+//    val uiState: StateFlow<ItemUiState> =
+//        itemsRepository.getAllItemsStream().map { ItemUiState() }
+//            .stateIn(
+//                scope=viewModelScope,
+//                started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+//                initialValue = ItemUiState()
+//            )
+//    val uiState: StateFlow<ItemDetailsUiState> =
+//        itemsRepository.getItemStream(itemId)
+//            .filterNotNull()
+//            .map { ItemDetailsUiState(itemDetails = it.toItemDetails()) }
+//            .stateIn(
+//                scope = viewModelScope,
+//                started = SharingStarted.WhileSubscribed(DetailsViewModel.TIMEOUT_MILLIS),
+//                initialValue = ItemDetailsUiState()
+//            )
+
+//    companion object {
+//        private const val TIMEOUT_MILLIS = 5_000L
+//    }
+
 
     constructor(
         savedStateHandle: SavedStateHandle?,
@@ -61,6 +89,7 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
 
     suspend fun updateItem() {
         if (validateInput()) {
+            deleteEmptyNumbers()
             itemsRepository.updateItem(itemUiState.itemDetails.toItem())
         }
     }
@@ -92,6 +121,7 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 }
                 numberTypesList.add(NumberTypes.values()[i].name)
                 numberList.add("")
+                Log.d("EntryViewModel", "addMoreNumbers: ${NumberTypes.values()[i].name}")
                 break
             }
             itemUiState = itemUiState.copy(
@@ -101,6 +131,9 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 enabledUsed = itemUiState.enabledUsed + 1,
                 isEnabledMore = itemUiState.enabledUsed + 2 < NumberTypes.values().size
             )
+            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.enabledUsed}")
+            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.isEnabledMore}")
+            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.itemDetails.number}")
         }
     }
 
@@ -117,13 +150,46 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 enabledUsed = itemUiState.enabledUsed - 1,
                 isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size
             )
+            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.enabledUsed}")
+            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.isEnabledMore}")
+            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.itemDetails.number}")
         }
     }
 
     suspend fun saveItem() {
         if (validateInput()) {
+            deleteEmptyNumbers()
             itemsRepository.insertItem(itemUiState.itemDetails.toItem())
+//            val itemId = itemsRepository.insertItem(itemUiState.itemDetails.toItem())
+            // Update the itemDetails with the new ID
+            itemUiState = itemUiState.copy(
+                itemDetails = itemUiState.itemDetails.copy(id = itemsRepository.getLastItemId().first()!!)
+            )
         }
+    }
+
+    private fun deleteEmptyNumbers() {
+        val numberList = itemUiState.itemDetails.number.toMutableList()
+        val numberTypesList = itemUiState.itemDetails.numberTypes.toMutableList()
+        var j=0
+        for (i in 0 until itemUiState.itemDetails.number.size) {
+            if (itemUiState.itemDetails.number[j].isBlank()) {
+                numberList.removeAt(j)
+                numberTypesList.removeAt(j)
+                j-=1
+            }
+            j+=1
+        }
+        itemUiState = itemUiState.copy(
+            itemDetails = itemUiState.itemDetails.copy(
+                number = numberList,
+                numberTypes = numberTypesList
+            )
+        )
+        itemUiState = itemUiState.copy(
+            enabledUsed = itemUiState.itemDetails.number.size-1,
+            isEnabledMore = itemUiState.itemDetails.number.size < NumberTypes.values().size
+        )
     }
 
     private fun validateTexts(uiState: ItemDetails): Boolean {
@@ -147,7 +213,7 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
         return true
     }
 
-    private fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
+    fun validateInput(uiState: ItemDetails = itemUiState.itemDetails): Boolean {
         return with(uiState) {
             validateName(name) and validateNumber(number[0]) and isValidEmail(email)
         }

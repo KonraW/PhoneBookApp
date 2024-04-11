@@ -41,7 +41,7 @@ object HomeDestination : NavigationDestination {
 @Composable
 fun HomeScreen(
     navigateToItemEntry: () -> Unit,
-    navigateToItemUpdate: (Int) -> Unit,
+    navigateToItemDetails: (Int) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
@@ -73,7 +73,7 @@ fun HomeScreen(
                 viewModel.deleteAllItems(homeUiState.itemList)
             }
         },
-        navigateToItemUpdate = navigateToItemUpdate,
+        navigateToItemUpdate = navigateToItemDetails,
 //        onItemClick = {
 //        },
         modifier = modifier

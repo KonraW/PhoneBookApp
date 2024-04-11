@@ -29,15 +29,16 @@ fun PhoneBookNavHost(
         composable(route = HomeDestination.route) {
             HomeScreen(
                 navigateToItemEntry = { navController.navigate(EntryDestination.route) },
-                navigateToItemUpdate = {
+                navigateToItemDetails = {
                     navController.navigate("${DetailsDestination.route}/${it}")
                 }
             )
         }
         composable(route = EntryDestination.route) {
             EntryScreen(
+                onNavigateUp = { navController.navigateUp() },
                 navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp() }
+                navigateToItemDetails = { navController.navigate("${DetailsDestination.route}/${it}") }
             )
         }
         composable(
@@ -48,7 +49,8 @@ fun PhoneBookNavHost(
         ) {
             DetailsScreen(
                 navigateToEditItem = { navController.navigate("${EditDestination.route}/$it") },
-                navigateBack = { navController.navigateUp() }
+                navigateBack = { navController.navigateUp() },
+                navigateHome = { navController.navigate(HomeDestination.route) },
             )
         }
         composable(
@@ -59,7 +61,8 @@ fun PhoneBookNavHost(
         ) {
             EditScreen(
                 navigateBack = { navController.popBackStack() },
-                onNavigateUp = { navController.navigateUp() }
+                onNavigateUp = { navController.navigateUp() },
+                navigateToItemDetails = { navController.navigate("${DetailsDestination.route}/${it}") }
             )
         }
     }

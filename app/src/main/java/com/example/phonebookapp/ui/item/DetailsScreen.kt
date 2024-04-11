@@ -1,5 +1,3 @@
-
-
 package com.example.phonebookapp.ui.item
 
 import androidx.compose.foundation.Image
@@ -13,8 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -22,14 +18,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,7 +41,6 @@ import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.navigation.NavigationDestination
 import com.example.phonebookapp.ui.theme.PhoneBookAppTheme
-import kotlinx.coroutines.launch
 
 object DetailsDestination : NavigationDestination {
     override val route = "item_details"
@@ -64,8 +55,9 @@ object DetailsDestination : NavigationDestination {
 fun DetailsScreen(
     navigateToEditItem: (Int) -> Unit,
     navigateBack: () -> Unit,
+    navigateHome: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: DetailsViewModel = viewModel(factory= AppViewModelProvider.Factory)
+    viewModel: DetailsViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val uiState = viewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -74,9 +66,14 @@ fun DetailsScreen(
         topBar = {
 //            DetailsTopBar()
 
-            PhoneBookTopAppBar(title = "edit", canNavigateBack = true, navigateUp = navigateBack, canClickButton = true, onClickButton = {
-                navigateToEditItem(uiState.value.itemDetails.id)
-            })
+            PhoneBookTopAppBar(
+                title = "edit",
+                canNavigateBack = true,
+                navigateUp = navigateHome,//navigateBack,
+                canClickButton = true,
+                onClickButton = {
+                    navigateToEditItem(viewModel.uiState.value.itemDetails.id)//uiState.value.itemDetails.id)
+                })
         },
         containerColor = MaterialTheme.colorScheme.primaryContainer
     ) { innerPadding ->
@@ -84,9 +81,11 @@ fun DetailsScreen(
             modifier = Modifier
                 .padding(innerPadding)
         ) {
-            item { DetailsBody(
-                itemDetails=uiState.value.itemDetails
-            ) }
+            item {
+                DetailsBody(
+                    itemDetails = uiState.value.itemDetails
+                )
+            }
         }
     }
 }
@@ -144,8 +143,9 @@ fun DetailsBody(
     ) {
         DetailsPhoto()
         DetailsName(
-            text = itemDetails.name+" "+itemDetails.surname
+            text = itemDetails.name
         )
+        DetailsName(text = itemDetails.surname)
         DetailsCategory(
             text = itemDetails.category,
             icon = Icons.Default.Person,

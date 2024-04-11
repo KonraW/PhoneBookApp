@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,9 +77,12 @@ object EntryDestination : NavigationDestination {
 fun EntryScreen(
     onNavigateUp:() -> Unit,
     navigateBack: () -> Unit,
+    navigateToItemDetails: (Int) -> Unit,
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+//    val uiState = viewModel.uiState.collectAsState()
 
     Scaffold(topBar = {
 //        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.saveItem() } })
@@ -86,7 +90,11 @@ fun EntryScreen(
         PhoneBookTopAppBar(title = "edit", canNavigateBack = true, navigateUp = onNavigateUp, canClickButton = true, onClickButton = {
             coroutineScope.launch {
                 viewModel.saveItem()
+                if (viewModel.validateInput()){
+                    navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
+                }
             }
+//            navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
         })
     }) { innerPadding ->
         EntryBody(
@@ -96,6 +104,9 @@ fun EntryScreen(
             onSaveClick = {
                 coroutineScope.launch {
                     viewModel.saveItem()
+                    if (viewModel.validateInput()) {
+                        navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
+                    }
                 }
             },
 //            coroutineScope = coroutineScope,
