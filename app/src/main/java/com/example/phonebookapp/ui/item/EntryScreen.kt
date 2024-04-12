@@ -1,4 +1,3 @@
-
 package com.example.phonebookapp.ui.item
 
 import android.net.Uri
@@ -20,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -38,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,7 +62,6 @@ import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.navigation.NavigationDestination
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 object EntryDestination : NavigationDestination {
@@ -75,7 +73,7 @@ object EntryDestination : NavigationDestination {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EntryScreen(
-    onNavigateUp:() -> Unit,
+    onNavigateUp: () -> Unit,
     navigateBack: () -> Unit,
     navigateToItemDetails: (Int) -> Unit,
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -87,15 +85,22 @@ fun EntryScreen(
     Scaffold(topBar = {
 //        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.saveItem() } })
 
-        PhoneBookTopAppBar(title = "edit", canNavigateBack = true, navigateUp = onNavigateUp, canClickButton = true, onClickButton = {
-            coroutineScope.launch {
-                viewModel.saveItem()
-                if (viewModel.validateInput()){
-                    navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
+        PhoneBookTopAppBar(
+            title = "edit",
+            canNavigateBack = true,
+            navigateUp = onNavigateUp,
+            canClickButton = true,
+            onClickButton = {
+                coroutineScope.launch {
+                    viewModel.saveItem()
+                    if (viewModel.validateInput()) {
+                        navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
+                    }
                 }
-            }
 //            navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
-        })
+            },
+            buttonIcon = Icons.Default.Done
+        )
     }) { innerPadding ->
         EntryBody(
             viewModel = viewModel,

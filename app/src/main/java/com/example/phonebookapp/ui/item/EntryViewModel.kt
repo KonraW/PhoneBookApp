@@ -121,7 +121,6 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 }
                 numberTypesList.add(NumberTypes.values()[i].name)
                 numberList.add("")
-                Log.d("EntryViewModel", "addMoreNumbers: ${NumberTypes.values()[i].name}")
                 break
             }
             itemUiState = itemUiState.copy(
@@ -131,9 +130,6 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 enabledUsed = itemUiState.enabledUsed + 1,
                 isEnabledMore = itemUiState.enabledUsed + 2 < NumberTypes.values().size
             )
-            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.enabledUsed}")
-            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.isEnabledMore}")
-            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.itemDetails.number}")
         }
     }
 
@@ -150,9 +146,6 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 enabledUsed = itemUiState.enabledUsed - 1,
                 isEnabledMore = itemUiState.enabledUsed < NumberTypes.values().size
             )
-            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.enabledUsed}")
-            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.isEnabledMore}")
-            Log.d("EntryViewModel", "addMoreNumbers: ${itemUiState.itemDetails.number}")
         }
     }
 

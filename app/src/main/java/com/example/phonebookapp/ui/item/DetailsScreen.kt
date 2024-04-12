@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -73,9 +74,12 @@ fun DetailsScreen(
                 canClickButton = true,
                 onClickButton = {
                     navigateToEditItem(viewModel.uiState.value.itemDetails.id)//uiState.value.itemDetails.id)
-                })
+                },
+                buttonIcon = Icons.Default.Edit
+            )
         },
-        containerColor = MaterialTheme.colorScheme.primaryContainer
+//        contentColor = MaterialTheme.colorScheme.onPrimary,
+//        containerColor = MaterialTheme.colorScheme.primaryContainer
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -145,7 +149,9 @@ fun DetailsBody(
         DetailsName(
             text = itemDetails.name
         )
-        DetailsName(text = itemDetails.surname)
+        if(itemDetails.surname.isNotBlank()) {
+            DetailsName(text = itemDetails.surname)
+        }
         DetailsCategory(
             text = itemDetails.category,
             icon = Icons.Default.Person,

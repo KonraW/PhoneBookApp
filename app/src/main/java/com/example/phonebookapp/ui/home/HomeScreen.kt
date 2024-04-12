@@ -1,5 +1,3 @@
-
-
 package com.example.phonebookapp.ui.home
 
 import androidx.compose.foundation.clickable
@@ -11,10 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -62,22 +62,35 @@ fun HomeScreen(
 //    coroutineScope.launch {
 //        viewModel.deleteAllItems(homeUiState.itemList)
 //    }
-    PhoneBookTopAppBar(title = "home", canNavigateBack = false, canClickButton = true, onClickButton = {
-        navigateToItemEntry()
-    })
+    Scaffold (
+        topBar={
 
-    PeopleList(
-        homeUiState.itemList,
-        onClick = {
-            coroutineScope.launch {
-                viewModel.deleteAllItems(homeUiState.itemList)
-            }
-        },
-        navigateToItemUpdate = navigateToItemDetails,
+            PhoneBookTopAppBar(
+                title = "home",
+                canNavigateBack = false,
+                canClickButton = true,
+                onClickButton = {
+                    navigateToItemEntry()
+                },
+                buttonIcon = Icons.Default.Add
+            )
+        }
+    ){innerPadding ->
+        PeopleList(
+            homeUiState.itemList,
+            onClick = {
+                coroutineScope.launch {
+                    viewModel.deleteAllItems(homeUiState.itemList)
+                }
+            },
+            navigateToItemUpdate = navigateToItemDetails,
 //        onItemClick = {
 //        },
-        modifier = modifier
-    )
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+
+
 }
 
 @Composable
@@ -89,9 +102,9 @@ private fun PeopleList(
     modifier: Modifier = Modifier
 ) {
     Column {
-        Button(onClick = onClick) {
-
-        }
+//        Button(onClick = onClick) {
+//
+//        }
 
         LazyColumn(modifier = modifier) {
             items(items = itemList, key = { it.id }) {
