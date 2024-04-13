@@ -26,6 +26,7 @@ enum class NumberTypes {
 }
 
 enum class Category(val color: Color) {
+    NONE(Color.Gray),
     FAMILY(Color.Magenta),
     FRIENDS(Color(0xFF00CF00)),
     WORK(Color(0xFF00AFC0)),
