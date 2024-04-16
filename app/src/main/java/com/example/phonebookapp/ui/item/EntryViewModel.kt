@@ -264,7 +264,7 @@ data class ItemDetails(
 ) {
     fun toItem(): Item = Item(
         id = id,
-        photo = photo.toString(),
+        photo = photo,
         name = name,
         surname = surname,
         category = category,
@@ -278,7 +278,7 @@ data class ItemDetails(
 
 fun Item.toItemDetails(): ItemDetails = ItemDetails(
     id = id,
-    photo = Uri.parse(photo),
+    photo = photo,
     name = name,
     surname = surname,
     category = category,

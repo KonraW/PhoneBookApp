@@ -1,6 +1,9 @@
 package com.example.phonebookapp.ui.home
 
-import android.util.Log
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -8,13 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,19 +31,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.Item
@@ -115,6 +118,26 @@ fun HomeScreen(
 
 }
 
+@Composable
+fun PickFileButton() {
+    val context = LocalContext.current
+    val pickFileLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+        // Handle the returned Uri
+        uri?.let {
+            // Here you can handle the Uri, for example, by updating your ViewModel
+            // or by using the Uri directly in your Composable
+            // For example, to persist access to the Uri across app restarts:
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            context.contentResolver.takePersistableUriPermission(it, takeFlags)
+        }
+    }
+
+    Button(onClick = { pickFileLauncher.launch("image/*") }) {
+        Text("Pick a File")
+    }
+}
+
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PeopleList(
@@ -134,18 +157,26 @@ private fun PeopleList(
 
         val sections = alphabetItemLists.map { it.first().name.uppercase().first().toString() }
 
-        LazyColumn(state=state,modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        LazyColumn(
+            state = state,
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             sections.forEach { section ->
                 stickyHeader {
-                    Row (
+                    Row(
                     ) {
-                        Text(section, style=MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp))
+                        Text(
+                            section,
+                            style = MaterialTheme.typography.headlineLarge,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)
+                        )
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
 
 //                stickyHeader { Text("Header") }
-                items(items = itemList, key = { section+it.id }) {
+                items(items = itemList, key = { section + it.id }) {
 //                    Box(
 //                        modifier = Modifier
 //                            .fillMaxWidth()
@@ -153,7 +184,7 @@ private fun PeopleList(
 //                    ) {
 //                        Text(text = "Item ${it.id}", Modifier.size(0.dp))
 //                    }
-                    if (it.name.uppercase().first() == section[0]){
+                    if (it.name.uppercase().first() == section[0]) {
                         PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
                     }
                 }
@@ -238,7 +269,7 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
 
 @Composable
 private fun PersonIcon(item: Item) {
-    val (initial, color) = if (item.name.isNotEmpty()) {
+    val (initial, color) = if (item.name.isNotEmpty() and (item.photo.toString().isEmpty())){
         item.name.first().uppercaseChar().toString() to generateUniqueColor(
             item.id,
             item.name.first(),
@@ -252,19 +283,52 @@ private fun PersonIcon(item: Item) {
             colors = CardDefaults.cardColors(
                 color
             ),
-            modifier = Modifier.size(48.dp),
-            shape = CircleShape
+            modifier = Modifier
+                .size(48.dp)
+                .clip(CircleShape),
 
 
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = initial,
-                    style = MaterialTheme.typography.headlineLarge
+            if (item.photo.toString().isNotEmpty()) {
+                val image = item.photo
+
+//                val painter: Painter = rememberAsyncImagePainter(
+//                    model = ImageRequest.Builder(LocalContext.current)
+//                        .data(image)
+//                        .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
+//                        .build()
+//                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+//                )
+                val painter: Painter = rememberAsyncImagePainter(
+                    model = image,
+//                    size = Size.ORIGINAL // Set the target size to load the image at.
                 )
+
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    modifier = Modifier.size(100.dp),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                )
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = initial,
+                        style = MaterialTheme.typography.headlineLarge
+                    )
+                }
+//            Box(
+//                modifier = Modifier.fillMaxSize(),
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Text(
+//                    text = initial,
+//                    style = MaterialTheme.typography.headlineLarge
+//                )
+//            }
             }
         }
     }

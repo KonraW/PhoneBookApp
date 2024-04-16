@@ -72,7 +72,7 @@ dependencies {
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
 
     // Coil
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Testing
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
