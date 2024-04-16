@@ -68,8 +68,11 @@ dependencies {
 
     //Room
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
     ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
     implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
+
+
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.5.0")
