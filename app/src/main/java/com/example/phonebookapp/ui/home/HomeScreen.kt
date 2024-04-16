@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -29,6 +33,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -118,11 +124,29 @@ private fun PeopleList(
 //
 //        }
 
-        LazyColumn(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-            items(items = itemList, key = { it.id }) {
-                PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+        val state: LazyListState=rememberLazyListState()
+
+        Box(modifier=modifier.drawWithCache{
+            state.layoutInfo.visibleItemsInfo.forEachIndexed() { index, itemInfo ->
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .border(1.dp, Color.Gray)
+                ) {
+                    Text(text = "Item $index", Modifier.width(200.dp))
+                }
+            }
+            this
+        }){
+
+            LazyColumn(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+                items(items = itemList, key = { it.id }) {
+                    PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+                }
             }
         }
+
+
     }
 }
 
@@ -186,8 +210,8 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
             .padding(end=16.dp),
     ) {
         Image(
-            imageVector = icon,
             contentDescription = "Category",
+            imageVector = icon,
             modifier = Modifier.size(24.dp),
             colorFilter = ColorFilter.tint(color)
         )
