@@ -37,6 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
 import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.ui.AppViewModelProvider
@@ -145,11 +146,13 @@ fun DetailsBody(
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
     ) {
-        DetailsPhoto()
+        DetailsPhoto(
+            itemDetails = itemDetails
+        )
         DetailsName(
             text = itemDetails.name
         )
-        if(itemDetails.surname.isNotBlank()) {
+        if (itemDetails.surname.isNotBlank()) {
             DetailsName(text = itemDetails.surname)
         }
         DetailsCategory(
@@ -195,20 +198,26 @@ fun DetailsList(
 }
 
 @Composable
-fun DetailsPhoto() {
-    val painter: Painter =
-        painterResource(id = com.example.phonebookapp.R.drawable.ic_launcher_background)
+fun DetailsPhoto(
+    itemDetails: ItemDetails
+) {
     Card(
         modifier = Modifier
             .padding(16.dp)
             .clip(RoundedCornerShape(96.dp))
+//            .size(192.dp),
     ) {
-        Image(
-            painter = painter,
-            contentDescription = "Photo",
-            modifier = Modifier
-                .size(192.dp)
-        )
+        if (itemDetails.photo.toString().isNotEmpty()) {
+            val painter: Painter = rememberAsyncImagePainter(model = itemDetails.photo)
+            Image(
+                painter = painter,
+                contentDescription = "Photo",
+                modifier = Modifier
+                    .size(192.dp),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+
+            )
+        }
     }
 }
 
