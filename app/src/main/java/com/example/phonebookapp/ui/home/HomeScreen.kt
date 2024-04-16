@@ -132,57 +132,14 @@ private fun PeopleList(
 
         val state: LazyListState = rememberLazyListState()
 
-//        Box(modifier = modifier
-//            .fillMaxSize()
-//            .drawWithCache {
-//                onDrawWithContent {
-//                    state.layoutInfo.visibleItemsInfo.forEachIndexed { index, itemInfo ->
-//                        drawRect(
-//                            color = Color.Red,
-//                            topLeft = Offset(1f, 0f/*itemInfo.offset.toFloat()*/),
-//                            size = Size(100f, 100f /*itemInfo.size.toFloat()*/)
-//                        )
-//                    }
-//                }
-//                onDrawBehind {
-//                    state.layoutInfo.visibleItemsInfo.forEachIndexed { index, itemInfo ->
-//                        drawRect(
-//                            color = Color.Red,
-//                            topLeft = Offset(1f, 0f/*itemInfo.offset.toFloat()*/),
-//                            size = Size(100f, 100f /*itemInfo.size.toFloat()*/)
-//                        )
-//                    }
-//                }
-//            }) {
         val sections = alphabetItemLists.map { it.first().name.uppercase().first().toString() }
-
-        val stickyOffset by remember(state) {
-            derivedStateOf {
-                if (state.layoutInfo.visibleItemsInfo.isNotEmpty()) {
-
-                    val offset = state.firstVisibleItemScrollOffset /*state.layoutInfo.visibleItemsInfo
-                        .first() //{ it.contentType == "sticky" }
-                        .offset*/
-//                    Log.d("PeopleList", "offset: $offset")
-
-                    // Oblicz przesunięcie sticky headera tylko jeśli istnieje offset górnego brzegu
-                    offset
-                } else{
-                    0
-                }
-            }
-        }
 
         LazyColumn(state=state,modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
             sections.forEach { section ->
                 stickyHeader {
-//                    Log.d("PeopleList", "stickyOffset: ${LazyListState().firstVisibleItemScrollOffset}")
-                    Log.d("PeopleList", "stickyOffset: ${state.firstVisibleItemIndex}")
-                    Log.d("PeopleList", "stickyOffset: ${state.firstVisibleItemScrollOffset}")
                     Row (
-                        modifier=Modifier.offset(y = stickyOffset.dp),
                     ) {
-                        Text(section, style=MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(16.dp))
+                        Text(section, style=MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp))
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
