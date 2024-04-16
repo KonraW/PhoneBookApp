@@ -22,7 +22,8 @@ interface ItemDao {
     @Query("SELECT * from items WHERE id = :id")
     fun getItem(id: Int): Flow<Item>
 
-    @Query("SELECT * from items ORDER BY name ASC")
+    //select ordered by name and ignore case
+    @Query("SELECT * from items ORDER BY name COLLATE NOCASE ASC")
     fun getAllItems(): Flow<List<Item>>
 
     @Query("DELETE FROM items")
@@ -30,4 +31,10 @@ interface ItemDao {
 
     @Query("SELECT MAX(id) FROM items")
     fun getLastItemId(): Flow<Int?>
+
+    @Query("SELECT * from items WHERE category = :category")
+    fun getItemsByCategory(category: Category): Flow<List<Item>>
+
+//    @Query("SELECT * from items ORDER BY name ASC")
+//    fun sortItems()
 }

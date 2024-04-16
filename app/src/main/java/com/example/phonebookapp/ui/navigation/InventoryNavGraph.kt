@@ -50,7 +50,13 @@ fun PhoneBookNavHost(
             DetailsScreen(
                 navigateToEditItem = { navController.navigate("${EditDestination.route}/$it") },
                 navigateBack = { navController.navigateUp() },
-                navigateHome = { navController.navigate(HomeDestination.route) },
+                navigateHome = {//if popBackStack=1 then back to HomeScreen
+                    if (navController.popBackStack(HomeDestination.route, false)) {
+                        navController.navigateUp()
+                    } else {
+                        HomeDestination.route
+                    }
+                },
             )
         }
         composable(

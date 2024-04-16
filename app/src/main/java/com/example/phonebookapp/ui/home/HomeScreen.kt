@@ -1,18 +1,20 @@
 package com.example.phonebookapp.ui.home
 
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -28,16 +30,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -63,7 +65,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-    val homeUiState by viewModel.homeUiState.collectAsState()
+//    val homeUiState by viewModel.stateFlow.collectAsState()
+    val homeUiState = viewModel.homeUiState
 
     val coroutineScope = rememberCoroutineScope()
     //Add a new item to the list
@@ -96,6 +99,7 @@ fun HomeScreen(
     ) { innerPadding ->
         PeopleList(
             homeUiState.itemList,
+            homeUiState.alphabetItemLists,
             onClick = {
                 coroutineScope.launch {
                     viewModel.deleteAllItems(homeUiState.itemList)
@@ -111,9 +115,11 @@ fun HomeScreen(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PeopleList(
     itemList: List<Item>,
+    alphabetItemLists: List<List<Item>>,
     onClick: () -> Unit = {},
     navigateToItemUpdate: (Int) -> Unit,
 //    onItemClick: () -> Unit = {},
@@ -124,27 +130,79 @@ private fun PeopleList(
 //
 //        }
 
-        val state: LazyListState=rememberLazyListState()
+        val state: LazyListState = rememberLazyListState()
 
-        Box(modifier=modifier.drawWithCache{
-            state.layoutInfo.visibleItemsInfo.forEachIndexed() { index, itemInfo ->
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .border(1.dp, Color.Gray)
-                ) {
-                    Text(text = "Item $index", Modifier.width(200.dp))
-                }
-            }
-            this
-        }){
+//        Box(modifier = modifier
+//            .fillMaxSize()
+//            .drawWithCache {
+//                onDrawWithContent {
+//                    state.layoutInfo.visibleItemsInfo.forEachIndexed { index, itemInfo ->
+//                        drawRect(
+//                            color = Color.Red,
+//                            topLeft = Offset(1f, 0f/*itemInfo.offset.toFloat()*/),
+//                            size = Size(100f, 100f /*itemInfo.size.toFloat()*/)
+//                        )
+//                    }
+//                }
+//                onDrawBehind {
+//                    state.layoutInfo.visibleItemsInfo.forEachIndexed { index, itemInfo ->
+//                        drawRect(
+//                            color = Color.Red,
+//                            topLeft = Offset(1f, 0f/*itemInfo.offset.toFloat()*/),
+//                            size = Size(100f, 100f /*itemInfo.size.toFloat()*/)
+//                        )
+//                    }
+//                }
+//            }) {
+        val sections = alphabetItemLists.map { it.first().name.uppercase().first().toString() }
 
-            LazyColumn(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-                items(items = itemList, key = { it.id }) {
-                    PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+        val stickyOffset by remember(state) {
+            derivedStateOf {
+                if (state.layoutInfo.visibleItemsInfo.isNotEmpty()) {
+
+                    val offset = state.firstVisibleItemScrollOffset /*state.layoutInfo.visibleItemsInfo
+                        .first() //{ it.contentType == "sticky" }
+                        .offset*/
+//                    Log.d("PeopleList", "offset: $offset")
+
+                    // Oblicz przesunięcie sticky headera tylko jeśli istnieje offset górnego brzegu
+                    offset
+                } else{
+                    0
                 }
             }
         }
+
+        LazyColumn(state=state,modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+            sections.forEach { section ->
+                stickyHeader {
+//                    Log.d("PeopleList", "stickyOffset: ${LazyListState().firstVisibleItemScrollOffset}")
+                    Log.d("PeopleList", "stickyOffset: ${state.firstVisibleItemIndex}")
+                    Log.d("PeopleList", "stickyOffset: ${state.firstVisibleItemScrollOffset}")
+                    Row (
+                        modifier=Modifier.offset(y = stickyOffset.dp),
+                    ) {
+                        Text(section, style=MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(16.dp))
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+
+//                stickyHeader { Text("Header") }
+                items(items = itemList, key = { section+it.id }) {
+//                    Box(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(16.dp)
+//                    ) {
+//                        Text(text = "Item ${it.id}", Modifier.size(0.dp))
+//                    }
+                    if (it.name.uppercase().first() == section[0]){
+                        PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+                    }
+                }
+            }
+        }
+//        }
 
 
     }
@@ -152,17 +210,17 @@ private fun PeopleList(
 
 @Composable
 private fun PersonRow(item: Item, onItemClick: () -> Unit) {
-    Card (
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 64.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
+//            .fillMaxWidth()
+            .padding(start = 48.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
             .clickable(onClick = onItemClick),
 //            .border(1.dp, Color.Gray, MaterialTheme.shapes.medium),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             MaterialTheme.colorScheme.secondaryContainer,
         )
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -207,7 +265,7 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(end=16.dp),
+            .padding(end = 16.dp),
     ) {
         Image(
             contentDescription = "Category",

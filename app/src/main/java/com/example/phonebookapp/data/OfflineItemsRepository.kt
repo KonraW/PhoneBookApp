@@ -16,4 +16,8 @@ class OfflineItemsRepository(private val itemDao: ItemDao): ItemsRepository {
     override suspend fun deleteAllItems(list: List<Item>) = itemDao.deleteAllItems()
 
     override fun getLastItemId(): Flow<Int?> = itemDao.getLastItemId()
+
+    override fun getItemsByCategory(category: Category): Flow<List<Item>> = itemDao.getItemsByCategory(category)
+
+//    override fun sortItems() = itemDao.sortItems()
 }

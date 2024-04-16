@@ -86,11 +86,25 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
         }
     }
 
+    suspend fun saveItem() {
+        if (validateInput()) {
+            deleteEmptyNumbers()
+            itemsRepository.insertItem(itemUiState.itemDetails.toItem())
+//            val itemId = itemsRepository.insertItem(itemUiState.itemDetails.toItem())
+            // Update the itemDetails with the new ID
+            itemUiState = itemUiState.copy(
+                itemDetails = itemUiState.itemDetails.copy(id = itemsRepository.getLastItemId().first()!!)
+            )
+            //sort the list
+//            itemsRepository.sortItems()
+        }
+    }
 
     suspend fun updateItem() {
         if (validateInput()) {
             deleteEmptyNumbers()
             itemsRepository.updateItem(itemUiState.itemDetails.toItem())
+//            itemsRepository.sortItems()
         }
     }
 
@@ -149,17 +163,6 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
         }
     }
 
-    suspend fun saveItem() {
-        if (validateInput()) {
-            deleteEmptyNumbers()
-            itemsRepository.insertItem(itemUiState.itemDetails.toItem())
-//            val itemId = itemsRepository.insertItem(itemUiState.itemDetails.toItem())
-            // Update the itemDetails with the new ID
-            itemUiState = itemUiState.copy(
-                itemDetails = itemUiState.itemDetails.copy(id = itemsRepository.getLastItemId().first()!!)
-            )
-        }
-    }
 
     private fun deleteEmptyNumbers() {
         val numberList = itemUiState.itemDetails.number.toMutableList()
