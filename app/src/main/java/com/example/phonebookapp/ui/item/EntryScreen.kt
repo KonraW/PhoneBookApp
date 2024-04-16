@@ -1,10 +1,6 @@
 package com.example.phonebookapp.ui.item
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,14 +50,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.ImagePainter
 import coil.compose.rememberAsyncImagePainter
 import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
@@ -224,20 +218,16 @@ fun EntryBody(
 fun EntryPhoto(
     itemDetails: ItemDetails, onItemValueChange: (ItemDetails) -> Unit
 ) {
-    val context = LocalContext.current
 
     val pickMediaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
-        var bitmap: Bitmap? = itemDetails.photo
         if (uri != null) {
-            bitmap = loadBitmapFromUri(context, uri)
-            Log.d("Uri", uri.toString())
+            onItemValueChange(itemDetails.copy(photo = uri))
         }
-        onItemValueChange(itemDetails.copy(photo = bitmap))
     }
 
-    val painter: Painter = ImagePainter(Uri.parse("content://media/picker/0/com.android.providers.media.photopicker/media/1000000040", contentResolver) //rememberAsyncImagePainter(model = itemDetails.photo)
+    val painter: Painter = rememberAsyncImagePainter(model = itemDetails.photo.toString())
     Card(
         modifier = Modifier
             .padding(16.dp)
@@ -255,16 +245,6 @@ fun EntryPhoto(
         pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }) {
         Text("Add Photo")
-    }
-}
-
-private fun loadBitmapFromUri(context: Context, uri: Uri): Bitmap? {
-    return try {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        BitmapFactory.decodeStream(inputStream)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
     }
 }
 

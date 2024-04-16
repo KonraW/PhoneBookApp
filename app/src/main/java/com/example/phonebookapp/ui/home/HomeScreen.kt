@@ -1,15 +1,6 @@
 package com.example.phonebookapp.ui.home
 
-import android.Manifest
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.READ_MEDIA_IMAGES
-import android.Manifest.permission.READ_MEDIA_VIDEO
-import android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-import android.app.Activity
-import android.os.Build
 import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -45,20 +36,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.Item
@@ -81,30 +65,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
-//    val requestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-//        // Obsługa wyników żądań uprawnień
-//        // Zobacz przykład uprawnień w próbkach platformy Android: https://github.com/android/platform-samples
-//    }
-//
-//// Logika żądania uprawnień
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-//        requestPermissions.launch(arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO, READ_MEDIA_VISUAL_USER_SELECTED))
-//    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//        requestPermissions.launch(arrayOf(READ_MEDIA_IMAGES, READ_MEDIA_VIDEO))
-//    } else {
-//        requestPermissions.launch(arrayOf(READ_EXTERNAL_STORAGE))
-//    }
-
-
-//    Manifest.permission.READ_EXTERNAL_STORAGE
-//    val activity = (LocalContext.current as? Activity)?.let { it as FragmentActivity }
-//        ?: return // Jeśli nie można rzutować context na FragmentActivity, zakończ funkcję
-
-//    val fragmentActivity = activity as FragmentActivity
-//    RequestStoragePermission(activity = activity, onPermissionGranted = { /*TODO*/ }) {
-//
-//    }
-    
 //    val homeUiState by viewModel.stateFlow.collectAsState()
     val homeUiState = viewModel.homeUiState
 
@@ -278,7 +238,7 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
 
 @Composable
 private fun PersonIcon(item: Item) {
-    val (initial, color) = if (item.name.isNotEmpty() and (item.photo==null)){
+    val (initial, color) = if (item.name.isNotEmpty()) {
         item.name.first().uppercaseChar().toString() to generateUniqueColor(
             item.id,
             item.name.first(),
@@ -292,40 +252,19 @@ private fun PersonIcon(item: Item) {
             colors = CardDefaults.cardColors(
                 color
             ),
-            modifier = Modifier
-                .size(48.dp)
-                .clip(CircleShape),
-//            shape = CircleShape
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape
 
 
         ) {
-            if (item.photo!=null) {
-                val image= item.photo
-
-                val painter: Painter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(image)
-                        .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
-                        .build()
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = initial,
+                    style = MaterialTheme.typography.headlineLarge
                 )
-//                val painter: Painter = item.photo.toUri().let { uri ->
-//                    rememberAsyncImagePainter(uri)
-//                }
-                Image(
-                    painter = painter,
-                    contentDescription = null,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                )
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = initial,
-                        style = MaterialTheme.typography.headlineLarge
-                    )
-                }
             }
         }
     }

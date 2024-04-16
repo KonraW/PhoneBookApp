@@ -1,6 +1,5 @@
 package com.example.phonebookapp.ui.item
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.util.Patterns
@@ -254,7 +253,7 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
 
 data class ItemDetails(
     val id: Int = 0,
-    val photo: Bitmap? = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888),
+    val photo: Uri = Uri.EMPTY,
     val name: String = "",
     val surname: String = "",
     val category: String = "FAMILY",
@@ -265,7 +264,7 @@ data class ItemDetails(
 ) {
     fun toItem(): Item = Item(
         id = id,
-        photo = photo,
+        photo = photo.toString(),
         name = name,
         surname = surname,
         category = category,
@@ -279,7 +278,7 @@ data class ItemDetails(
 
 fun Item.toItemDetails(): ItemDetails = ItemDetails(
     id = id,
-    photo = photo,
+    photo = Uri.parse(photo),
     name = name,
     surname = surname,
     category = category,
