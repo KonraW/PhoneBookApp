@@ -1,9 +1,5 @@
 package com.example.phonebookapp.ui.home
 
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -15,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -22,14 +20,21 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -39,15 +44,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
-import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.Item
 import com.example.phonebookapp.ui.AppViewModelProvider
@@ -73,43 +73,28 @@ fun HomeScreen(
     val homeUiState = viewModel.homeUiState
 
     val coroutineScope = rememberCoroutineScope()
-    //Add a new item to the list
-//    coroutineScope.launch {
-//        viewModel.addItem(Item(4, "New Person", 123456789))
-//    }
-//    coroutineScope.launch {
-//        viewModel.addItem(Item(name="New Person 123", number=9893219))
-//    }
-//    coroutineScope.launch {
-//        viewModel.addItem(Item(4, "New Person", 123456789))
-//    }
 
 //    coroutineScope.launch {
 //        viewModel.deleteAllItems(homeUiState.itemList)
 //    }
-    Scaffold(
-        topBar = {
+    Scaffold(topBar = {
 
-            PhoneBookTopAppBar(
-                title = "home",
-                canNavigateBack = false,
-                canClickButton = true,
-                onClickButton = {
-                    navigateToItemEntry()
-                },
-                buttonIcon = Icons.Default.Add
-            )
-        }
-    ) { innerPadding ->
+        HomeTopAppBar(
+            value = homeUiState.searchValue,
+            onValueChange = viewModel::searchUpdate,
+            onClickButton = {
+                navigateToItemEntry()
+            },
+            updateAlphabetItemLists = viewModel::updateAlphabetItemLists,
+            buttonIcon = Icons.Default.Add,
+        )
+    }) { innerPadding ->
         PeopleList(
-            homeUiState.itemList,
-            homeUiState.alphabetItemLists,
-            onClick = {
+            homeUiState.itemList, homeUiState.alphabetItemLists, onClick = {
                 coroutineScope.launch {
                     viewModel.deleteAllItems(homeUiState.itemList)
                 }
-            },
-            navigateToItemUpdate = navigateToItemDetails,
+            }, navigateToItemUpdate = navigateToItemDetails,
 //        onItemClick = {
 //        },
             modifier = Modifier.padding(innerPadding)
@@ -120,26 +105,59 @@ fun HomeScreen(
 }
 
 
-
-
-//@Composable
-//fun PickFileButton() {
-//    val context = LocalContext.current
-//    val pickFileLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-//        // Handle the returned Uri
-//        uri?.let {
-//            // Here you can handle the Uri, for example, by updating your ViewModel
-//            // or by using the Uri directly in your Composable
-//            // For example, to persist access to the Uri across app restarts:
-//            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-//            context.contentResolver.takePersistableUriPermission(it, takeFlags)
-//        }
-//    }
-//
-//    Button(onClick = { pickFileLauncher.launch("image/*") }) {
-//        Text("Pick a File")
-//    }
-//}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeTopAppBar(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onClickButton: () -> Unit = {},
+    updateAlphabetItemLists: () -> Unit,
+    buttonIcon: ImageVector? = null,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    modifier: Modifier = Modifier
+) {
+    CenterAlignedTopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.Center,
+//                modifier = Modifier.fillMaxWidth()
+            ) {
+                Spacer(modifier = Modifier.width(48.dp))
+//                Icon(imageVector = Icons.Default.Home, contentDescription = null, modifier = Modifier.padding(4.dp))
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = {
+                        onValueChange(it)
+                        updateAlphabetItemLists()
+                    },
+                    textStyle = MaterialTheme.typography.titleMedium,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search, contentDescription = null
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .widthIn(max = 250.dp),
+                    shape = MaterialTheme.shapes.large,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = onClickButton) {
+                    Icon(
+                        imageVector = buttonIcon ?: Icons.Filled.ArrowBack,
+                        contentDescription = null
+                    )
+                }
+            }
+        },
+//        modifier = Modifier.height(48.dp),
+        scrollBehavior = scrollBehavior, colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    )
+}
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -153,47 +171,54 @@ private fun PeopleList(
     modifier: Modifier = Modifier
 ) {
     Column {
-//        Button(onClick = onClick) {
-//
-//        }
 
         val state: LazyListState = rememberLazyListState()
 
-        val sections = alphabetItemLists.map { it.first().name.uppercase().first().toString() }
+        if (alphabetItemLists.isEmpty()) {
+            Text(
+                text = "No items found",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else {
+            val sections = alphabetItemLists.map { it.first().name.uppercase().first().toString() }
 
-        LazyColumn(
-            state = state,
-            modifier = modifier,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            sections.forEach { section ->
-                stickyHeader {
-                    Row(
-                    ) {
-                        Text(
-                            section,
-                            style = MaterialTheme.typography.headlineLarge,
-                            modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp)
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
+            LazyColumn(
+                state = state,
+                modifier = modifier,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                sections.forEach { section ->
+                    stickyHeader {
+                        Row(
+                        ) {
+                            Text(
+                                section,
+                                style = MaterialTheme.typography.headlineLarge,
+                                modifier = Modifier.padding(
+                                    start = 16.dp, top = 4.dp, bottom = 4.dp
+                                )
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
-                }
-
-//                stickyHeader { Text("Header") }
-                items(items = itemList, key = { section + it.id }) {
-//                    Box(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(16.dp)
-//                    ) {
-//                        Text(text = "Item ${it.id}", Modifier.size(0.dp))
+//                    items(items = itemList, key = { section + it.id }) {
+//
+//                        if (it.name.uppercase().first() == section[0]) {
+//                            PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+//                        }
 //                    }
-                    if (it.name.uppercase().first() == section[0]) {
-                        PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+                    items(items = alphabetItemLists) { items ->
+                        items.forEach {
+                            if (it.name.uppercase().first() == section[0]) {
+                                PersonRow(item = it, onItemClick = { navigateToItemUpdate(it.id) })
+                            }
+                        }
                     }
                 }
             }
         }
+
 //        }
 
 
@@ -208,14 +233,12 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
             .padding(start = 48.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
             .clickable(onClick = onItemClick),
 //            .border(1.dp, Color.Gray, MaterialTheme.shapes.medium),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
+        shape = MaterialTheme.shapes.medium, colors = CardDefaults.cardColors(
             MaterialTheme.colorScheme.secondaryContainer,
         )
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
 //                .clickable(onClick = onItemClick),
 
 //        horizontalArrangement = Arrangement.SpaceBetween,
@@ -228,10 +251,18 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
             } else {
                 item.name
             }
-            Text(
-                text = if (nameAndSurname.length > 16) nameAndSurname.substring(0, 13)
-                    .plus("...") else nameAndSurname,
-            )//, modifier = Modifier.weight(1f))
+            Column {
+                Text(
+                    text = if (nameAndSurname.length > 16) nameAndSurname.substring(0, 13)
+                        .plus("...") else nameAndSurname,
+                    style = MaterialTheme.typography.titleLarge,
+                )//, modifier = Modifier.weight(1f))
+                val number =
+                    if (item.number.toString().length > 20) item.number.toString().substring(0, 20)
+                        .plus("...") else item.number.toString()
+
+                Text(text = number, style = MaterialTheme.typography.bodyMedium)
+            }
             Spacer(modifier = Modifier.weight(1f))
             if (item.category != "NONE") {
                 PersonCategory(
@@ -240,13 +271,6 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
                     color = Category.valueOf(item.category).color
                 )
             }
-//        Text(text = item.number.toString())
-//        Spacer(modifier = Modifier.weight(1f))
-//        Icon(
-//            imageVector = Icons.Default.Person,
-//            contentDescription = null,
-//
-//        )
         }
     }
 
@@ -256,8 +280,7 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
 fun PersonCategory(text: String, icon: ImageVector, color: Color) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .padding(end = 16.dp),
+        modifier = Modifier.padding(end = 16.dp),
     ) {
         Image(
             contentDescription = "Category",
@@ -273,11 +296,9 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
 
 @Composable
 private fun PersonIcon(item: Item) {
-    val (initial, color) = if (item.name.isNotEmpty() and (item.photo.toString().isEmpty())){
+    val (initial, color) = if (item.name.isNotEmpty() and (item.photo.toString().isEmpty())) {
         item.name.first().uppercaseChar().toString() to generateUniqueColor(
-            item.id,
-            item.name.first(),
-            item.number.first().toString()
+            item.id, item.name.first(), item.number.first().toString()
         )
     } else {
         "" to Color.Gray
@@ -296,46 +317,30 @@ private fun PersonIcon(item: Item) {
             if (item.photo.toString().isNotEmpty()) {
                 val image = item.photo
 
-//                val painter: Painter = rememberAsyncImagePainter(
-//                    model = ImageRequest.Builder(LocalContext.current)
-//                        .data(image)
-//                        .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
-//                        .build()
-//                        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-//                )
                 val painter: Painter = rememberAsyncImagePainter(
                     model = image,
 //                    size = Size.ORIGINAL // Set the target size to load the image at.
                 )
-                val painter2: Painter= rememberImagePainter(data = item.photo,builder= {
-                    crossfade(true)
-                })
+//                val painter2: Painter= rememberAsyncImagePainter(
+//                    ImageRequest.Builder(LocalContext.current).data(data = item.photo).apply(block = fun ImageRequest.Builder.() {
+//                        crossfade(true)
+//                    }).build()
+//                )
 
                 Image(
-                    painter = painter2,
+                    painter = painter,
                     contentDescription = null,
                     modifier = Modifier.size(100.dp),
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop
                 )
             } else {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = initial,
-                        style = MaterialTheme.typography.headlineLarge
+                        text = initial, style = MaterialTheme.typography.headlineLarge
                     )
                 }
-//            Box(
-//                modifier = Modifier.fillMaxSize(),
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = initial,
-//                    style = MaterialTheme.typography.headlineLarge
-//                )
-//            }
             }
         }
     }

@@ -39,16 +39,27 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         private const val TIMEOUT_MILLIS = 5_000L
     }
 
-    fun fillAlphabetItemLists() {
-        val alphabetItemLists = mutableListOf<List<Item>>()
-        val alphabet = ('A'..'Z').toList()
+    private fun fillAlphabetItemLists(items: List<Item> = homeUiState.itemList) {
+        val alphabetItemLists = mutableListOf<List<Item>>() // Zmieniono na pustą listę
+        val alphabet = (0..9).map { it.toString() } + ('A'..'Z').map { it.toString() }
         for (letter in alphabet) {
-            val items = homeUiState.itemList.filter { it.name.uppercase().first() == letter }
-            if (items.isNotEmpty()) {
-                alphabetItemLists.add(items)
+            val filteredItems = items.filter { it.name.uppercase().first().toString() == letter }
+            if (filteredItems.isNotEmpty()) {
+                alphabetItemLists.add(filteredItems)
             }
         }
-        homeUiState=homeUiState.copy(alphabetItemLists = alphabetItemLists)
+
+        homeUiState = homeUiState.copy(alphabetItemLists = alphabetItemLists)
+    }
+
+    fun updateAlphabetItemLists() {
+        if (homeUiState.searchValue.isNotEmpty()) {
+            val itemList: List<Item> = homeUiState.itemList
+            val filteredItemList= itemList.filter { it.name.contains(homeUiState.searchValue) }
+            fillAlphabetItemLists(filteredItemList)
+        } else {
+            fillAlphabetItemLists(homeUiState.itemList)
+        }
     }
 
     suspend fun addItem(item: Item) {
@@ -60,9 +71,14 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
             itemsRepository.deleteAllItems(items)
         }
     }
+
+    fun searchUpdate(searchValue: String) {
+        homeUiState = homeUiState.copy(searchValue = searchValue)
+    }
 }
 
 data class HomeUiState(
     val itemList: List<Item> = listOf(),
-    val alphabetItemLists: List<List<Item>> = listOf()
+    val alphabetItemLists: List<List<Item>> = listOf(),
+    val searchValue: String="",
 )

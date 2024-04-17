@@ -1,14 +1,9 @@
 package com.example.phonebookapp.ui.item
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
-import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -69,7 +64,6 @@ import com.example.phonebookapp.data.NumberTypes
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.navigation.NavigationDestination
 import kotlinx.coroutines.launch
-import java.io.File
 
 
 object EntryDestination : NavigationDestination {
@@ -94,7 +88,7 @@ fun EntryScreen(
 //        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.saveItem() } })
 
         PhoneBookTopAppBar(
-            title = "Contact Entry",
+            title = "New Contact",
             canNavigateBack = true,
             navigateUp = onNavigateUp,
             canClickButton = true,
@@ -221,49 +215,7 @@ fun EntryBody(
         )
     }
 }
-//const val PICK_IMAGE_REQUEST_CODE = 1
 
-//fun openImagePicker() {
-//    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-//        addCategory(Intent.CATEGORY_OPENABLE)
-//        type = "image/*"
-//    }
-//    startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE)
-//}
-
-//private fun getDataColumn(
-//    context: Context,
-//    uri: Uri,
-//    selection: String?,
-//    selectionArgs: Array<String>?
-//): String? {
-//    var cursor: Cursor? = null
-//    val column = "_data"
-//    val projection = arrayOf(column)
-//    try {
-//        cursor = context.contentResolver.query(
-//            uri, projection,
-//            selection, selectionArgs, null
-//        )
-//        if (cursor != null && cursor.moveToFirst()) {
-//            val index = cursor.getColumnIndexOrThrow(column)
-//            return cursor.getString(index)
-//        }
-//    } finally {
-//        cursor?.close()
-//    }
-//    return null
-//}
-//fun Uri.toFile(context: Context, uri: Uri): File? {
-//    val cursor = context.contentResolver.query(uri, null, null, null, null)
-//    if (cursor != null && cursor.moveToFirst()) {
-//        val columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
-//        val filePath = cursor.getString(columnIndex)
-//        cursor.close()
-//        return File(filePath)
-//    }
-//    return null
-//}
 @Composable
 fun EntryPhoto(
     itemDetails: ItemDetails, onItemValueChange: (ItemDetails) -> Unit
@@ -283,67 +235,6 @@ fun EntryPhoto(
             onItemValueChange(itemDetails.copy(photo = uri))
         }
     }
-//
-
-
-
-
-
-
-//    val pickMediaIntent = Intent(Intent.ACTION_PICK).apply {
-//        type = "image/*"
-//        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-//    }
-//    val pickMediaLauncher = rememberLauncherForActivityResult(
-//        contract = object : ActivityResultContract<Intent, Uri?>() {
-//            override fun createIntent(context: Context, input: Intent): Intent = input
-//
-//            override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
-//                if (resultCode == Activity.RESULT_OK) {
-//                    return intent?.data
-//                }
-//                return null
-//            }
-//        }
-////        contract = ActivityResultContracts.GetContent(),
-//    ) { uri: Uri? ->
-//        if (uri != null) {
-//            // Utrwal uprawnienia do URI
-//            context.contentResolver.takePersistableUriPermission(
-//                uri,
-//                Intent.FLAG_GRANT_READ_URI_PERMISSION
-//            )
-//            // Zaktualizuj stan aplikacji z nowym URI
-//            onItemValueChange(itemDetails.copy(photo = uri))
-//        }
-//    }
-
-//    private val getImage = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
-//        it?.let {
-//            imgViewTakePhoto.setImageURI(it)
-//        }
-//    }
-//    val pickMediaLauncher2 = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-//        if (uri != null) {
-//            // Utrwal uprawnienia do URI
-//            context.contentResolver.takePersistableUriPermission(
-//                uri,
-//                Intent.FLAG_GRANT_READ_URI_PERMISSION
-//            )
-//            // Zaktualizuj stan aplikacji z nowym URI
-//            onItemValueChange(itemDetails.copy(photo = uri))
-//        }
-//    }
-
-//    val selection: String? = null
-//    val selectionArgs: Array<String>? = null
-//    val image=getDataColumn(context, itemDetails.photo, selection,
-//        selectionArgs)
-
-//    String path = yourAndroidURI.uri.toString() // "file:///mnt/sdcard/FileName.mp3"
-//    File file = new File(new URI(path))
-
-//    val file= itemDetails.photo.toFile(context, itemDetails.photo)
 
     val painter: Painter = rememberAsyncImagePainter(model = itemDetails.photo.toString())
     Card(
@@ -352,9 +243,7 @@ fun EntryPhoto(
             .clip(RoundedCornerShape(96.dp))
     ) {
         Image(
-                painter = painter,
-//            painter = file?.let { rememberAsyncImagePainter(model = it) } ?: painter,
-//            painter = painter,
+            painter = painter,
             contentDescription = "Photo",
             modifier = Modifier.size(192.dp),
             contentScale = androidx.compose.ui.layout.ContentScale.Crop
@@ -362,7 +251,6 @@ fun EntryPhoto(
     }
 
     Button(onClick = {
-//        pickMediaLauncher.launch(pickMediaIntent.toString())
         pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }) {
         Text("Add Photo")
