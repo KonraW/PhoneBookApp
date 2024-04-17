@@ -24,7 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.phonebookapp.ui.home.PickFileButton
+//import com.example.phonebookapp.ui.home.PickFileButton
 import com.example.phonebookapp.ui.navigation.PhoneBookNavHost
 
 
@@ -53,7 +53,7 @@ fun PhoneBookTopAppBar(
                 modifier = Modifier.fillMaxWidth()
             ) {
 
-                PickFileButton()
+//                PickFileButton()
 
                 if (canNavigateBack) {
                     IconButton(onClick = navigateUp) {

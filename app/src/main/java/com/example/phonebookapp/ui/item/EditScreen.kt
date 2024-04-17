@@ -36,7 +36,7 @@ fun EditScreen(
     Scaffold(topBar = {
 //        EntryTopBar(onSaveClick = { coroutineScope.launch { viewModel.updateItem() } })
         PhoneBookTopAppBar(
-            title = "edit",
+            title = "Contact Edit",
             canNavigateBack = true,
             navigateUp = onNavigateUp,
             canClickButton = true,

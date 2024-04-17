@@ -119,24 +119,27 @@ fun HomeScreen(
 
 }
 
-@Composable
-fun PickFileButton() {
-    val context = LocalContext.current
-    val pickFileLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-        // Handle the returned Uri
-        uri?.let {
-            // Here you can handle the Uri, for example, by updating your ViewModel
-            // or by using the Uri directly in your Composable
-            // For example, to persist access to the Uri across app restarts:
-            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            context.contentResolver.takePersistableUriPermission(it, takeFlags)
-        }
-    }
 
-    Button(onClick = { pickFileLauncher.launch("image/*") }) {
-        Text("Pick a File")
-    }
-}
+
+
+//@Composable
+//fun PickFileButton() {
+//    val context = LocalContext.current
+//    val pickFileLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+//        // Handle the returned Uri
+//        uri?.let {
+//            // Here you can handle the Uri, for example, by updating your ViewModel
+//            // or by using the Uri directly in your Composable
+//            // For example, to persist access to the Uri across app restarts:
+//            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+//            context.contentResolver.takePersistableUriPermission(it, takeFlags)
+//        }
+//    }
+//
+//    Button(onClick = { pickFileLauncher.launch("image/*") }) {
+//        Text("Pick a File")
+//    }
+//}
 
 
 @OptIn(ExperimentalFoundationApi::class)

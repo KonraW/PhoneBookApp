@@ -69,7 +69,7 @@ fun DetailsScreen(
 //            DetailsTopBar()
 
             PhoneBookTopAppBar(
-                title = "edit",
+                title = "Contact Details",
                 canNavigateBack = true,
                 navigateUp = navigateHome,//navigateBack,
                 canClickButton = true,
