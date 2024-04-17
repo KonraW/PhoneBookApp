@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.example.phonebookapp.ui.item.PICK_IMAGE_REQUEST_CODE
 import com.example.phonebookapp.ui.theme.PhoneBookAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+//    @SuppressLint("WrongConstant")
     @SuppressLint("WrongConstant")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -30,6 +32,16 @@ class MainActivity : ComponentActivity() {
             contentResolver.takePersistableUriPermission(selectedUri, takeFlags)
         }
     }
+//override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//    super.onActivityResult(requestCode, resultCode, data)
+//    if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+//        data?.data?.also { uri ->
+//            // Oto wybrany URI zdjęcia, możesz go teraz użyć
+//            // Na przykład, możesz załadować zdjęcie do ImageView
+//        }
+//    }
+//}
+
 
 
 }

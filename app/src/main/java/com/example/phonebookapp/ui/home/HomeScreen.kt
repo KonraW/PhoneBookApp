@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
@@ -303,9 +304,12 @@ private fun PersonIcon(item: Item) {
                     model = image,
 //                    size = Size.ORIGINAL // Set the target size to load the image at.
                 )
+                val painter2: Painter= rememberImagePainter(data = item.photo,builder= {
+                    crossfade(true)
+                })
 
                 Image(
-                    painter = painter,
+                    painter = painter2,
                     contentDescription = null,
                     modifier = Modifier.size(100.dp),
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop
