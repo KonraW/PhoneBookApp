@@ -6,9 +6,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -236,25 +239,43 @@ fun EntryPhoto(
         }
     }
 
+
     val painter: Painter = rememberAsyncImagePainter(model = itemDetails.photo.toString())
+
     Card(
         modifier = Modifier
             .padding(16.dp)
             .clip(RoundedCornerShape(96.dp))
+            .size(192.dp)
     ) {
-        Image(
-            painter = painter,
-            contentDescription = "Photo",
-            modifier = Modifier.size(192.dp),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop
-        )
+        if (itemDetails.photo.toString().isNotBlank()) {
+            Image(
+                painter = painter,
+                contentDescription = "Photo",
+//                modifier = Modifier.size(192.dp),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+        } else {
+            val initial = if (itemDetails.name.isNotEmpty()) {
+                itemDetails.name.first().uppercaseChar().toString()
+            } else {
+                ""
+            }
+            Box(
+                modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = initial, style = MaterialTheme.typography.headlineLarge
+                )
+            }
+        }
     }
-
     Button(onClick = {
         pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }) {
         Text("Add Photo")
     }
+
 }
 
 @Composable

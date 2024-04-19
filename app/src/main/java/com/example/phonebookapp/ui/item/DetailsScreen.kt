@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MailOutline
@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +40,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.ui.AppViewModelProvider
+import com.example.phonebookapp.ui.home.HomePersonIcon
 import com.example.phonebookapp.ui.navigation.NavigationDestination
 import com.example.phonebookapp.ui.theme.PhoneBookAppTheme
 
@@ -146,8 +146,12 @@ fun DetailsBody(
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
     ) {
-        DetailsPhoto(
-            itemDetails = itemDetails
+//        DetailsPhoto(
+//            itemDetails = itemDetails
+//        )
+        HomePersonIcon(
+            item = itemDetails.toItem(),
+            size = 192.dp
         )
         DetailsName(
             text = itemDetails.name
@@ -204,7 +208,8 @@ fun DetailsPhoto(
     Card(
         modifier = Modifier
             .padding(16.dp)
-            .clip(RoundedCornerShape(96.dp))
+            .clip(CircleShape)
+//            .clip(RoundedCornerShape(96.dp))
 //            .size(192.dp),
     ) {
         if (itemDetails.photo.toString().isNotEmpty()) {

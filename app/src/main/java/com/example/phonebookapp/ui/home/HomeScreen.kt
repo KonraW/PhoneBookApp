@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -245,7 +246,7 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            PersonIcon(item = item)
+            HomePersonIcon(item = item, size = 48.dp)
             val nameAndSurname = if (item.surname.isNotEmpty()) {
                 "${item.name} ${item.surname}"
             } else {
@@ -295,7 +296,7 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
 
 
 @Composable
-private fun PersonIcon(item: Item) {
+fun HomePersonIcon(item: Item, size: Dp) {
     val (initial, color) = if (item.name.isNotEmpty() and (item.photo.toString().isEmpty())) {
         item.name.first().uppercaseChar().toString() to generateUniqueColor(
             item.id, item.name.first(), item.number.first().toString()
@@ -309,7 +310,7 @@ private fun PersonIcon(item: Item) {
                 color
             ),
             modifier = Modifier
-                .size(48.dp)
+                .size(size)
                 .clip(CircleShape),
 
 
@@ -319,6 +320,8 @@ private fun PersonIcon(item: Item) {
 
                 val painter: Painter = rememberAsyncImagePainter(
                     model = image,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+
 //                    size = Size.ORIGINAL // Set the target size to load the image at.
                 )
 //                val painter2: Painter= rememberAsyncImagePainter(
@@ -330,7 +333,7 @@ private fun PersonIcon(item: Item) {
                 Image(
                     painter = painter,
                     contentDescription = null,
-                    modifier = Modifier.size(100.dp),
+//                    modifier = Modifier.size(size),
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop
                 )
             } else {
