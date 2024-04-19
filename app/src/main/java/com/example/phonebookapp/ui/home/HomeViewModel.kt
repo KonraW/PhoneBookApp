@@ -73,7 +73,9 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
     }
 
     fun searchUpdate(searchValue: String) {
-        homeUiState = homeUiState.copy(searchValue = searchValue)
+        if (searchValue.length<20){
+            homeUiState = homeUiState.copy(searchValue = searchValue)
+        }
     }
 }
 

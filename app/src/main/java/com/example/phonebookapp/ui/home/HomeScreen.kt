@@ -259,8 +259,8 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
                     style = MaterialTheme.typography.titleLarge,
                 )//, modifier = Modifier.weight(1f))
                 val number =
-                    if (item.number.toString().length > 20) item.number.toString().substring(0, 20)
-                        .plus("...") else item.number.toString()
+                    if (item.number.toString().length > 20) item.number.toString().substring(1, 20)
+                        .plus("...") else item.number.toString().substring(1, item.number.toString().length-1)
 
                 Text(text = number, style = MaterialTheme.typography.bodyMedium)
             }
