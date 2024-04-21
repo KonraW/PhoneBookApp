@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -230,7 +231,8 @@ fun DetailsList(
                     icon = Icons.Default.Phone,
                     firstString = itemDetails.number[i],
                     secondString = itemDetails.numberTypes[i],
-                    backgroundColor = backgroundColor
+                    onClickMain = { number, launcher -> detailsCall(number, launcher) },
+                    onClickSecond = { number, launcher -> detailsSMS(number, launcher) }
                 )
             }
             if (itemDetails.email.isNotBlank()) {
@@ -238,15 +240,14 @@ fun DetailsList(
                     icon = Icons.Default.MailOutline,
                     firstString = itemDetails.email,
                     secondString = "E-mail",
-                    backgroundColor = backgroundColor
+                    onClickMain = { number, launcher -> detailsEmail(number, launcher) },
+                    onClickSecond = { number, launcher -> detailsEmail(number, launcher) },
                 )
             }
             if (itemDetails.notes.isNotBlank()) {
-                DetailsListItem(
-                    icon = Icons.Default.MailOutline,
+                DetailsListNotes(
                     firstString = itemDetails.notes,
-                    secondString = "Notes",
-                    backgroundColor = backgroundColor
+                    secondString = "Notes"
                 )
             }
         }
@@ -260,13 +261,31 @@ fun DetailsList(
     }
 }
 
+@Composable
+fun DetailsListNotes(firstString: String, secondString: String) {
+    Column (modifier = Modifier.padding(8.dp)){
+
+        Text(
+            text = secondString,
+            style = MaterialTheme.typography.bodyLarge,
+            fontStyle = FontStyle.Italic,
+        )
+        Text(
+            text = firstString,
+            style = MaterialTheme.typography.headlineMedium
+        )
+    }
+}
+
 
 @Composable
 fun DetailsListItem(
     icon: ImageVector,
     firstString: String,
     secondString: String,
-    backgroundColor: Color,
+    onClickMain: (String, ManagedActivityResultLauncher<Intent, ActivityResult>) -> Unit,
+    onClickSecond: (String, ManagedActivityResultLauncher<Intent, ActivityResult>) -> Unit,
+//    backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
 
@@ -311,7 +330,7 @@ fun DetailsListItem(
                 .clip(MaterialTheme.shapes.small)
 //                    .fillMaxWidth()
                 .clickable(
-                    onClick = { detailsCall(firstString, dialerLauncher) }
+                    onClick = { onClickMain(firstString, dialerLauncher) },
                 )
                 .weight(1f)
         ) {
@@ -338,7 +357,12 @@ fun DetailsListItem(
         }
 //        Spacer(modifier = Modifier.weight(1f))
         IconButton(
-            onClick = { /*TODO*/ },
+            onClick = {
+                onClickSecond(
+                    firstString,
+                    dialerLauncher
+                )
+            },//detailsSMS(firstString,dialerLauncher) },
             modifier = Modifier.padding(8.dp)
         )
         {
@@ -387,11 +411,7 @@ fun DetailsButtons(
 
         DetailsCallButton(itemDetails = itemDetails)
         Spacer(modifier = Modifier.weight(1f))
-        DetailsButtonAndName(
-            icon = Icons.Default.MailOutline,
-            name = "SMS",
-            onClick = { /*TODO*/ }
-        )
+        DetailsSMSButton(itemDetails = itemDetails)
 
     }
 }
@@ -423,6 +443,23 @@ fun DetailsCallButton(
     )
 }
 
+@Composable
+fun DetailsSMSButton(
+    itemDetails: ItemDetails
+) {
+    val dialerLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Obsługa wyniku dzwonienia, na przykład wyświetlenie komunikatu o sukcesie lub porażce
+        }
+    DetailsButtonAndName(
+        icon = Icons.Default.Send,
+        name = "SMS",
+        onClick = {
+            detailsSMS(itemDetails.number[0], smsLauncher = dialerLauncher)
+        }
+    )
+}
+
 fun detailsCall(
     number: String,
     dialerLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
@@ -432,6 +469,28 @@ fun detailsCall(
         data = Uri.parse("tel:$number") // Tutaj wpisz numer telefonu
     }
     dialerLauncher.launch(intent)
+}
+
+fun detailsSMS(
+    number: String,
+    smsLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
+
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("smsto:$number") // Tutaj wpisz numer telefonu
+    }
+    smsLauncher.launch(intent)
+}
+
+fun detailsEmail(
+    email: String,
+    emailLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
+
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:$email") // Tutaj wpisz numer telefonu
+    }
+    emailLauncher.launch(intent)
 }
 
 @Composable
@@ -479,7 +538,8 @@ fun DetailsScreenPreview() {
             icon = Icons.Default.Phone,
             firstString = "123456789",
             secondString = "HOME",
-            backgroundColor = MaterialTheme.colorScheme.secondaryContainer
+            onClickMain = { number, launcher -> detailsCall(number, launcher) },
+            onClickSecond = { number, launcher -> detailsSMS(number, launcher) }
         )
     }
 }
