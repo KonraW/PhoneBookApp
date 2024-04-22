@@ -3,6 +3,7 @@ package com.example.phonebookapp.ui.home
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -44,6 +46,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -121,10 +128,11 @@ fun HomeTopAppBar(
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-//                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.Center,
 //                modifier = Modifier.fillMaxWidth()
             ) {
-                Spacer(modifier = Modifier.width(48.dp))
+                Spacer(modifier = Modifier.width(Icons.Default.Add.defaultWidth))
+//                Spacer(modifier = Modifier.weight(0.5f))
 //                Icon(imageVector = Icons.Default.Home, contentDescription = null, modifier = Modifier.padding(4.dp))
                 OutlinedTextField(
                     value = value,
@@ -141,10 +149,10 @@ fun HomeTopAppBar(
                     singleLine = true,
                     modifier = Modifier
                         .padding(8.dp)
-                        .widthIn(max = 250.dp),
+                        .widthIn(max = OutlinedTextFieldDefaults.MinWidth),
                     shape = MaterialTheme.shapes.large,
                 )
-                Spacer(modifier = Modifier.weight(1f))
+//                Spacer(modifier = Modifier.weight(0.5f))
                 IconButton(onClick = onClickButton) {
                     Icon(
                         imageVector = buttonIcon ?: Icons.Filled.ArrowBack,
@@ -260,9 +268,10 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
                 )//, modifier = Modifier.weight(1f))
                 val number =
                     if (item.number.toString().length > 20) item.number.toString().substring(1, 20)
-                        .plus("...") else item.number.toString().substring(1, item.number.toString().length-1)
+                        .plus("...") else item.number.toString()
+                        .substring(1, item.number.toString().length - 1)
 
-                Text(text = number, style = MaterialTheme.typography.bodyMedium)
+                Text(text = formatPhoneNumber(number), style = MaterialTheme.typography.bodyMedium)
             }
             Spacer(modifier = Modifier.weight(1f))
             if (item.category != "NONE") {
@@ -275,6 +284,41 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
         }
     }
 
+}
+
+fun formatPhoneNumber(phoneNumber: String): AnnotatedString {
+    return buildAnnotatedString {
+        val length = phoneNumber.length
+        if (length < 10) {
+            // Dla mniejszych numerów telefonów, możemy zdecydować się na prosty format bez dodatkowych znaków
+            append(phoneNumber)
+            return@buildAnnotatedString
+        }
+        // Dodajemy trzy pierwsze cyfry numeru telefonu
+        withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
+            append(phoneNumber.substring(0, 3))
+        }
+        // Dodajemy spację
+        withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
+            append(" ")
+        }
+        // Dodajemy trzy następne cyfry numeru telefonu
+        withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
+            append(phoneNumber.substring(3, 6))
+        }
+        // Dodajemy myślnik i spację
+        withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
+            append(" ")
+        }
+        // Dodajemy trzy ostatnie cyfry numeru telefonu
+        withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
+            append(phoneNumber.substring(6, 9))
+        }
+        // Dodajemy spację i pozostałe cyfry numeru telefonu
+        withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
+            append(phoneNumber.substring(10, length))
+        }
+    }
 }
 
 @Composable
@@ -334,7 +378,8 @@ fun HomePersonIcon(item: Item, size: Dp) {
                     painter = painter,
                     contentDescription = null,
 //                    modifier = Modifier.size(size),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier= Modifier.fillMaxSize()
                 )
             } else {
                 Box(

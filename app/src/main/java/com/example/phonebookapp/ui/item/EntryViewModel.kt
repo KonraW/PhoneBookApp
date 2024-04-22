@@ -189,7 +189,7 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
     }
 
     private fun validateTexts(uiState: ItemDetails): Boolean {
-        val textRegex = "^[A-Za-z0-9+_.@\\- ]{0,30}$".toRegex()
+        val textRegex = "^[A-Za-z0-9+_.@\\- ]{0,25}$".toRegex()
 
         return with(uiState) {
             validatePhone(uiState) && name.matches(textRegex) && surname.matches(textRegex) && category.matches(
@@ -199,7 +199,7 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
     }
 
     private fun validatePhone(uiState: ItemDetails): Boolean {
-        val phoneRegex = "^\\+?[0-9\\- ]{0,30}$".toRegex()
+        val phoneRegex = "^\\+?[0-9\\- ]{0,25}$".toRegex()
 
         for (phone in uiState.number) {
             if (!phone.matches(phoneRegex)) {

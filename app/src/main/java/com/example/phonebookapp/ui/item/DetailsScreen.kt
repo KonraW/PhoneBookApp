@@ -54,6 +54,7 @@ import com.example.phonebookapp.PhoneBookTopAppBar
 import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.ui.AppViewModelProvider
 import com.example.phonebookapp.ui.home.HomePersonIcon
+import com.example.phonebookapp.ui.home.formatPhoneNumber
 import com.example.phonebookapp.ui.navigation.NavigationDestination
 import com.example.phonebookapp.ui.theme.PhoneBookAppTheme
 
@@ -215,7 +216,7 @@ fun DetailsList(
                 containerColor = backgroundColor
             ),
             modifier = Modifier
-                .padding(16.dp)
+                .padding(4.dp)
                 .clip(MaterialTheme.shapes.medium)
                 .fillMaxWidth()
         ) {
@@ -229,7 +230,7 @@ fun DetailsList(
             for (i in itemDetails.number.indices) {
                 DetailsListItem(
                     icon = Icons.Default.Phone,
-                    firstString = itemDetails.number[i],
+                    firstString = formatPhoneNumber(itemDetails.number[i]).toString(),
                     secondString = itemDetails.numberTypes[i],
                     onClickMain = { number, launcher -> detailsCall(number, launcher) },
                     onClickSecond = { number, launcher -> detailsSMS(number, launcher) }
@@ -263,7 +264,7 @@ fun DetailsList(
 
 @Composable
 fun DetailsListNotes(firstString: String, secondString: String) {
-    Column (modifier = Modifier.padding(8.dp)){
+    Column(modifier = Modifier.padding(16.dp)) {
 
         Text(
             text = secondString,
@@ -343,13 +344,15 @@ fun DetailsListItem(
             Column(modifier = Modifier.padding(start = 8.dp)) {
                 Text(
                     text = firstString,
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Start
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = TextAlign.Start,
+//                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = secondString,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Start
+                    style = MaterialTheme.typography.labelSmall,
+                    textAlign = TextAlign.Start,
+//                    fontWeight = FontWeight.Bold
                 )
 //                }
             }
@@ -524,7 +527,7 @@ fun DetailsName(
     Text(
         text = text,
         style = MaterialTheme.typography.displaySmall,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(4.dp)
 
     )
 }

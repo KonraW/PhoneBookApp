@@ -55,7 +55,7 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
     fun updateAlphabetItemLists() {
         if (homeUiState.searchValue.isNotEmpty()) {
             val itemList: List<Item> = homeUiState.itemList
-            val filteredItemList= itemList.filter { it.name.contains(homeUiState.searchValue) }
+            val filteredItemList= itemList.filter { it.name.contains(homeUiState.searchValue, true) }
             fillAlphabetItemLists(filteredItemList)
         } else {
             fillAlphabetItemLists(homeUiState.itemList)
