@@ -100,6 +100,10 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
         }
     }
 
+    suspend fun deleteItem() {
+        itemsRepository.deleteItem(itemUiState.itemDetails.toItem())
+    }
+
     suspend fun updateItem() {
         if (validateInput()) {
             deleteEmptyNumbers()
@@ -173,9 +177,12 @@ class EntryViewModel( private val itemsRepository: ItemsRepository) : ViewModel(
                 numberList.removeAt(j)
                 numberTypesList.removeAt(j)
                 j-=1
+            } else{
+                numberList[j] = numberList[j].replace("\\s".toRegex(), "")
             }
             j+=1
         }
+
         itemUiState = itemUiState.copy(
             itemDetails = itemUiState.itemDetails.copy(
                 number = numberList,

@@ -44,7 +44,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,14 +55,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.phonebookapp.PhoneBookTopAppBar
@@ -86,6 +83,7 @@ fun EntryScreen(
     onNavigateUp: () -> Unit,
     navigateBack: () -> Unit,
     navigateToItemDetails: (Int) -> Unit,
+    navigateToHome: () -> Unit,
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -109,7 +107,14 @@ fun EntryScreen(
                 }
 //            navigateToItemDetails(viewModel.itemUiState.itemDetails.id)
             },
-            buttonIcon = Icons.Default.Done
+            buttonIcon = Icons.Default.Done,
+            onClickSecondButton = {
+                coroutineScope.launch {
+                    viewModel.deleteItem()
+                    navigateToHome()
+                }
+            },
+            secondButtonIcon = Icons.Default.Delete
         )
     }) { innerPadding ->
         EntryBody(
@@ -259,7 +264,7 @@ fun EntryPhoto(
                 contentDescription = "Photo",
 //                modifier = Modifier.size(192.dp),
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                modifier= Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             )
         } else {
             val initial = if (itemDetails.name.isNotEmpty()) {
@@ -424,7 +429,9 @@ fun EntryText(
         },
 //        textStyle = TextStyle(fontSize = (40-value.length).coerceIn(14, 24).sp),
         label = { Text(label) },
-        modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 0.dp).widthIn(max=OutlinedTextFieldDefaults.MinWidth),
+        modifier = Modifier
+            .padding(8.dp, 8.dp, 8.dp, 0.dp)
+            .widthIn(max = OutlinedTextFieldDefaults.MinWidth),
         maxLines = 2,
         isError = isError.isNotBlank(),
         trailingIcon = {

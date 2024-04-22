@@ -38,7 +38,16 @@ fun PhoneBookNavHost(
             EntryScreen(
                 onNavigateUp = { navController.navigateUp() },
                 navigateBack = { navController.popBackStack() },
-                navigateToItemDetails = { navController.navigate("${DetailsDestination.route}/${it}") }
+                navigateToItemDetails = { navController.navigate("${DetailsDestination.route}/${it}") },
+                navigateToHome = {
+                    navController.navigate(HomeDestination.route) {
+                        //delete everything in the backstack
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+
+                }
             )
         }
         composable(
@@ -68,7 +77,15 @@ fun PhoneBookNavHost(
             EditScreen(
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp() },
-                navigateToItemDetails = { navController.navigate("${DetailsDestination.route}/${it}") }
+                navigateToItemDetails = { navController.navigate("${DetailsDestination.route}/${it}") },
+                navigateToHome = {
+                    navController.navigate(HomeDestination.route) {
+                        //delete everything in the backstack
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
     }

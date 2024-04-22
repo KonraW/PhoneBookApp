@@ -289,7 +289,7 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
 fun formatPhoneNumber(phoneNumber: String): AnnotatedString {
     return buildAnnotatedString {
         val length = phoneNumber.length
-        if (length < 10) {
+        if (length < 9) {
             // Dla mniejszych numerów telefonów, możemy zdecydować się na prosty format bez dodatkowych znaków
             append(phoneNumber)
             return@buildAnnotatedString
@@ -316,7 +316,7 @@ fun formatPhoneNumber(phoneNumber: String): AnnotatedString {
         }
         // Dodajemy spację i pozostałe cyfry numeru telefonu
         withStyle(SpanStyle(textDecoration = TextDecoration.None)) {
-            append(phoneNumber.substring(10, length))
+            append(phoneNumber.substring(9, length))
         }
     }
 }

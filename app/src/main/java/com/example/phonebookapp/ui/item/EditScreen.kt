@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -29,6 +30,7 @@ fun EditScreen(
     onNavigateUp: () -> Unit,
     navigateBack: () -> Unit,
     navigateToItemDetails: (Int) -> Unit,
+    navigateToHome: () -> Unit,
     viewModel: EntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -48,7 +50,14 @@ fun EditScreen(
                     }
                 }
             },
-            buttonIcon = Icons.Default.Done
+            buttonIcon = Icons.Default.Done,
+            onClickSecondButton = {
+                coroutineScope.launch {
+                    viewModel.deleteItem()
+                    navigateToHome()
+                }
+            },
+            secondButtonIcon = Icons.Default.Delete
         )
     }) { innerPadding ->
         EntryBody(

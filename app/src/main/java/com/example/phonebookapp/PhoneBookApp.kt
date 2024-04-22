@@ -42,6 +42,8 @@ fun PhoneBookTopAppBar(
     canClickButton: Boolean = false,
     onClickButton: () -> Unit = {},
     buttonIcon: ImageVector? = null,
+    onClickSecondButton: () -> Unit = {},
+    secondButtonIcon: ImageVector? = null,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     modifier: Modifier = Modifier
 ) {
@@ -67,6 +69,16 @@ fun PhoneBookTopAppBar(
                     Spacer(modifier = Modifier.width(48.dp))
                 }
                 Text(text = title, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+
+                if (secondButtonIcon != null) {
+                    IconButton(onClick = onClickSecondButton) {
+                        Icon(
+                            imageVector = secondButtonIcon,
+                            contentDescription = null,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
+                }
                 if (canClickButton) {
                     IconButton(onClick = onClickButton) {
                         Icon(
