@@ -1,11 +1,3 @@
-![image](https://github.com/KonraW/PhoneBookApp/assets/55025128/634fe5f3-74d0-4cfc-9618-5a18a7784156)
-![image](https://github.com/KonraW/PhoneBookApp/assets/55025128/c2670075-3686-4de2-852a-84a3e848b186)
-![image](https://github.com/KonraW/PhoneBookApp/assets/55025128/884e1680-d714-4083-92d3-d674adb81d4c)
-
-![image](https://github.com/KonraW/PhoneBookApp/assets/55025128/3ff411c6-f798-4f98-b470-4e21128fc453)
-![image](https://github.com/KonraW/PhoneBookApp/assets/55025128/93b67cdb-bb3e-450d-ab76-2005e8ec96ae)
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +6,23 @@
 </head>
 <body>
     <h1>PhoneBookApp</h1>
-    <p>PhoneBookApp is a set of tools for managing a phone book on the Android platform. The application allows users to add, edit, and delete contacts, providing an intuitive user interface and rich features.</p>
+    <p>PhoneBookApp is a set of tools for managing a phone book on the Android platform. The application allows users to add, edit, delete, display, search by name and number, add photos, redirect to call and SMS applications, providing an intuitive user interface and rich features.</p>
+    <h2>Images</h2>
+    <figure>
+        <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/634fe5f3-74d0-4cfc-9618-5a18a7784156" alt="Contact Image 1" width="230" height="auto">
+    </figure>
+    <figure>
+        <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/884e1680-d714-4083-92d3-d674adb81d4c" alt="Contact Image 3" width="230" height="auto">
+    </figure>
+    <figure>
+        <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/c2670075-3686-4de2-852a-84a3e848b186" alt="Contact Image 2" width="230" height="auto">
+    </figure>
+    <figure>
+        <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/3ff411c6-f798-4f98-b470-4e21128fc453" alt="Contact Image 4" width="270" height="auto">
+    </figure>
+    <figure>
+        <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/93b67cdb-bb3e-450d-ab76-2005e8ec96ae" alt="Contact Image 5" width="250" height="auto">
+    </figure>
     <h2>Key Features</h2>
     <ul>
         <li>Adding a new contact: Users can enter personal data such as first name, last name, email address, contact categories, etc. It's also possible to add a contact photo using the option to add a photo using uri.</li>
@@ -22,6 +30,7 @@
         <li>Data validation: There is a data validation mechanism that informs the user about errors when entering data, such as an incorrect phone number format or email address.</li>
         <li>Deleting contacts: Users can delete contacts from the phone book.</li>
         <li>Viewing contacts: The application provides a preview of contacts, allowing users to browse and edit existing entries.</li>
+        <li>Direct call and SMS redirection: Users are redirected to the application from which they can directly initiate calls and send SMS messages.</li>
     </ul>
     <h2>Technologies Used</h2>
     <ul>
