@@ -24,7 +24,7 @@
         <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/93b67cdb-bb3e-450d-ab76-2005e8ec96ae" alt="Contact Image 5" width="250" height="auto">
     </figure>
     <figure>
-        ![image](https://github.com/KonraW/PhoneBookApp/assets/55025128/29591db9-cd1b-40f0-867f-9022f6c4359e)
+        <img src="https://github.com/KonraW/PhoneBookApp/assets/55025128/29591db9-cd1b-40f0-867f-9022f6c4359e" alt="Contact Image 5" width="280" height="auto">
     </figure>
     <h2>Key Features</h2>
     <ul>
