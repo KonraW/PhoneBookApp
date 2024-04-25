@@ -27,7 +27,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +40,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +60,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import com.example.phonebookapp.data.Category
@@ -88,6 +95,8 @@ fun HomeScreen(
     Scaffold(topBar = {
 
         HomeTopAppBar(
+            homeUiState = homeUiState,
+            viewModel = viewModel,
             value = homeUiState.searchValue,
             onValueChange = viewModel::searchUpdate,
             onClickButton = {
@@ -116,6 +125,8 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopAppBar(
+    homeUiState: HomeUiState,
+    viewModel: HomeViewModel,
     value: String,
     onValueChange: (String) -> Unit,
     onClickButton: () -> Unit = {},
@@ -131,9 +142,11 @@ fun HomeTopAppBar(
                 horizontalArrangement = Arrangement.Center,
 //                modifier = Modifier.fillMaxWidth()
             ) {
-                Spacer(modifier = Modifier.width(Icons.Default.Add.defaultWidth))
+//                Spacer(modifier = Modifier.width(Icons.Default.Add.defaultWidth))
 //                Spacer(modifier = Modifier.weight(0.5f))
 //                Icon(imageVector = Icons.Default.Home, contentDescription = null, modifier = Modifier.padding(4.dp))
+
+                var expanded by remember { mutableStateOf(false) }
                 OutlinedTextField(
                     value = value,
                     onValueChange = {
@@ -149,11 +162,53 @@ fun HomeTopAppBar(
                     singleLine = true,
                     modifier = Modifier
                         .padding(8.dp)
-                        .widthIn(max = OutlinedTextFieldDefaults.MinWidth),
+                        .widthIn(max = OutlinedTextFieldDefaults.MinWidth - 50.dp),
                     shape = MaterialTheme.shapes.large,
                 )
 //                Spacer(modifier = Modifier.weight(0.5f))
-                IconButton(onClick = onClickButton) {
+                ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+//                    Card(modifier = Modifier
+//                        .clickable {}) {
+                    val maxCategoryLength = Category.values().maxOf { it.toString().length }
+                    Box(modifier = Modifier
+                        .menuAnchor()
+                        .widthIn(maxCategoryLength * 10.dp, maxCategoryLength * 10.dp)
+                    ){PersonCategory(
+                        text = homeUiState.categoryValue.toString(),
+                        icon = Icons.Default.Person,
+                        color = homeUiState.categoryValue.color,
+                        modifier=Modifier.fillMaxWidth()
+
+                        )}
+
+//                    }
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }) {
+                        for (category in Category.values()) {
+                            DropdownMenuItem(
+                                text = {
+                                    PersonCategory(
+                                        text = category.toString(),
+                                        icon = Icons.Default.Person,
+                                        color = category.color
+                                    )
+                                },
+                                onClick = {
+//                                    coroutineScope {  }.launch {
+                                    viewModel.categoryUpdate(category)
+                                    updateAlphabetItemLists()
+                                    expanded = false
+//                                    }
+                                    updateAlphabetItemLists()
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                IconButton(onClick = onClickButton, modifier=Modifier.weight(1f)) {
                     Icon(
                         imageVector = buttonIcon ?: Icons.Filled.ArrowBack,
                         contentDescription = null
@@ -278,7 +333,8 @@ private fun PersonRow(item: Item, onItemClick: () -> Unit) {
                 PersonCategory(
                     text = item.category,
                     icon = Icons.Default.Person,
-                    color = Category.valueOf(item.category).color
+                    color = Category.valueOf(item.category).color,
+                    modifier = Modifier.padding(end=16.dp)
                 )
             }
         }
@@ -322,10 +378,10 @@ fun formatPhoneNumber(phoneNumber: String): AnnotatedString {
 }
 
 @Composable
-fun PersonCategory(text: String, icon: ImageVector, color: Color) {
+fun PersonCategory(text: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(end = 16.dp),
+        modifier = modifier,
     ) {
         Image(
             contentDescription = "Category",
@@ -333,7 +389,7 @@ fun PersonCategory(text: String, icon: ImageVector, color: Color) {
             modifier = Modifier.size(24.dp),
             colorFilter = ColorFilter.tint(color)
         )
-        Spacer(modifier = Modifier.padding(4.dp))
+//        Spacer(modifier = Modifier.padding(4.dp))
         Text(text = text.lowercase(), color = color)
     }
 }
@@ -379,7 +435,7 @@ fun HomePersonIcon(item: Item, size: Dp) {
                     contentDescription = null,
 //                    modifier = Modifier.size(size),
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                    modifier= Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                 )
             } else {
                 Box(

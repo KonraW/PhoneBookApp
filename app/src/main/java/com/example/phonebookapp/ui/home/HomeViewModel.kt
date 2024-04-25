@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.phonebookapp.data.Category
 import com.example.phonebookapp.data.Item
 import com.example.phonebookapp.data.ItemsRepository
 import kotlinx.coroutines.flow.SharingStarted
@@ -56,10 +57,26 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
         if (homeUiState.searchValue.isNotEmpty()) {
             val itemList: List<Item> = homeUiState.itemList
 //            val filteredItemList= itemList.filter { it.name.contains(homeUiState.searchValue, true) }
-            val filteredItemList = itemList.filter { it.name.contains(homeUiState.searchValue, true) || it.number.toString().contains(homeUiState.searchValue, true) }
+            val filteredItemList = itemList.filter {
+                (it.name.contains(
+                    homeUiState.searchValue,
+                    true
+                ) || it.number.toString().contains(
+                    homeUiState.searchValue,
+                    true
+                )) && (it.category == homeUiState.categoryValue.toString() || homeUiState.categoryValue == Category.NONE)
+            }
             fillAlphabetItemLists(filteredItemList)
         } else {
-            fillAlphabetItemLists(homeUiState.itemList)
+            if (homeUiState.categoryValue == Category.NONE) {
+                fillAlphabetItemLists(homeUiState.itemList)
+            } else {
+                val itemList: List<Item> = homeUiState.itemList
+                val filteredItemList = itemList.filter {
+                    it.category == homeUiState.categoryValue.toString()
+                }
+                fillAlphabetItemLists(filteredItemList)
+            }
         }
     }
 
@@ -74,14 +91,19 @@ class HomeViewModel(private val itemsRepository: ItemsRepository) : ViewModel() 
     }
 
     fun searchUpdate(searchValue: String) {
-        if (searchValue.length<20){
+        if (searchValue.length < 20) {
             homeUiState = homeUiState.copy(searchValue = searchValue)
         }
+    }
+
+    fun categoryUpdate(category: Category) {
+        homeUiState = homeUiState.copy(categoryValue = category)
     }
 }
 
 data class HomeUiState(
     val itemList: List<Item> = listOf(),
     val alphabetItemLists: List<List<Item>> = listOf(),
-    val searchValue: String="",
+    val searchValue: String = "",
+    val categoryValue: Category = Category.NONE
 )
